@@ -101,10 +101,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_BACKLIGHT_DISABLE_HHKB_BLOCKER_LEDS 0
 
 // disable backlight when USB suspended (PC sleep/hibernate/shutdown)
-#define RGB_BACKLIGHT_DISABLE_WHEN_USB_SUSPENDED 0
+#define RGB_BACKLIGHT_DISABLE_WHEN_USB_SUSPENDED 1
 
 // disable backlight after timeout in minutes, 0 = no timeout
-#define RGB_BACKLIGHT_DISABLE_AFTER_TIMEOUT 0
+#define RGB_BACKLIGHT_DISABLE_AFTER_TIMEOUT 2
 
 // the default brightness
 #define RGB_BACKLIGHT_BRIGHTNESS 255
