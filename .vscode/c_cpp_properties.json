@@ -1,0 +1,50 @@
+{
+    "configurations": [
+        {
+            "name": "qmk",
+            "includePath": [
+                "/usr/include/c++/9",
+                "/usr/include/x86_64-linux-gnu/c++/9",
+                "/usr/include/c++/9/backward",
+                "/usr/lib/gcc/x86_64-linux-gnu/9/include",
+                "/usr/local/include",
+                "/usr/lib/gcc/x86_64-linux-gnu/9/include-fixed",
+                "/usr/include/x86_64-linux-gnu",
+                "/usr/include",
+                "/usr/lib/avr/include/**",
+                "/usr/lib/gcc/avr/5.4.0/include/**",
+                "/usr/lib/gcc/avr/5.4.0/include-fixed/**",
+                "/usr/lib/arm-none-eabi/include/**",
+                "/usr/lib/gcc/arm-none-eabi/7.3.1/include/**",
+                "/usr/lib/gcc/arm-none-eabi/7.3.1/include-fixed/**",
+                "${workspaceRoot}/**"
+            ],
+            "defines": [],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "/usr/include/c++/9",
+                    "/usr/include/x86_64-linux-gnu/c++/9",
+                    "/usr/include/c++/9/backward",
+                    "/usr/lib/gcc/x86_64-linux-gnu/9/include",
+                    "/usr/local/include",
+                    "/usr/lib/gcc/x86_64-linux-gnu/9/include-fixed",
+                    "/usr/include/x86_64-linux-gnu",
+                    "/usr/include",
+                    "/usr/lib/avr/include/**",
+                    "/usr/lib/gcc/avr/5.4.0/include/**",
+                    "/usr/lib/gcc/avr/5.4.0/include-fixed/**",
+                    "/usr/lib/arm-none-eabi/include/**",
+                    "/usr/lib/gcc/arm-none-eabi/7.3.1/include/**",
+                    "/usr/lib/gcc/arm-none-eabi/7.3.1/include-fixed/**",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceRoot}/.vscode/.browse.vc.db"
+            }
+        }
+    ],
+    "version": 4
+}
