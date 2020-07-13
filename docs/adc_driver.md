@@ -2,7 +2,7 @@
 
 QMK can leverage the Analog-to-Digital Converter (ADC) on supported MCUs to measure voltages on certain pins. This can be useful for implementing things such as battery level indicators for Bluetooth keyboards, or volume controls using a potentiometer, as opposed to a [rotary encoder](feature_encoders.md).
 
-This driver currently supports both AVR and a limited selection of ARM devices. On AVR devices, the values returned are 10-bit integers (0-1023) mapped between 0V and VCC (usually 5V or 3.3V). On supported ARM devices, there is more flexibility in control of operation through `#define`s, but by default the values returned are 12-bit integers (0-4095) mapped between 0V and VCC (usually 3.3V).
+This driver currently supports both AVR and a limited selection of ARM devices. The values returned are 10-bit integers (0-1023) mapped between 0V and VCC (usually 5V or 3.3V for AVR, 3.3V only for ARM), however on ARM there is more flexibility in control of operation through `#define`s if you need more precision.
 
 ## Usage
 
@@ -22,7 +22,7 @@ Then place this include at the top of your code:
 
 ### AVR
 
-|Channel|AT90USB64/128|ATmega16/32U4|ATmega32A|ATmega328P|
+|Channel|AT90USB64/128|ATmega16/32U4|ATmega32A|ATmega328/P|
 |-------|-------------|-------------|---------|----------|
 |0      |`F0`         |`F0`         |`A0`     |`C0`      |
 |1      |`F1`         |`F1`         |`A1`     |`C1`      |
@@ -39,7 +39,7 @@ Then place this include at the top of your code:
 |12     |             |`B5`         |         |          |
 |13     |             |`B6`         |         |          |
 
-<sup>\* The ATmega328P possesses two extra ADC channels; however, they are not present on the DIP pinout, and are not shared with GPIO pins. You can use `adc_read()` directly to gain access to these.</sup>
+<sup>\* The ATmega328/P possesses two extra ADC channels; however, they are not present on the DIP pinout, and are not shared with GPIO pins. You can use `adc_read()` directly to gain access to these.</sup>
 
 ### ARM
 
