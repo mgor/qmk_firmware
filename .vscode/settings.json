@@ -18,6 +18,11 @@
       "utility": "c",
       "*.inc": "c",
       "istream": "c",
-      "streambuf": "c"
+      "streambuf": "c",
+      "*.inc": "c"
+    },
+    "[markdown]": {
+        "editor.trimAutoWhitespace": false,
+        "files.trimTrailingWhitespace": false
     }
 }

@@ -77,10 +77,6 @@ extern keymap_config_t keymap_config;
 #    include "virtser.h"
 #endif
 
-#if defined(RGBLIGHT_ENABLE)
-#    include "rgblight.h"
-#endif
-
 #ifdef MIDI_ENABLE
 #    include "qmk_midi.h"
 #endif
@@ -805,8 +801,6 @@ ERROR_EXIT:
     Endpoint_SelectEndpoint(ep);
     return -1;
 }
-#else
-int8_t sendchar(uint8_t c) { return 0; }
 #endif
 
 /*******************************************************************************
