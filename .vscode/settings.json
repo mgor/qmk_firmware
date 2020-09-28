@@ -9,17 +9,17 @@
         "**/*.bin": true
     },
     "files.associations": {
-      "*.h": "c",
-      "*.c": "c",
-      "*.cpp": "cpp",
-      "*.hpp": "cpp",
-      "xstddef": "c",
-      "type_traits": "c",
-      "utility": "c",
-      "*.inc": "c",
-      "istream": "c",
-      "streambuf": "c",
-      "*.inc": "c"
+        "*.h": "c",
+        "*.c": "c",
+        "*.inc": "c",
+        "*.cpp": "cpp",
+        "*.hpp": "cpp",
+        "xstddef": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "ranges": "c",
+        "istream": "c",
+        "streambuf": "c"
     },
     "[markdown]": {
         "editor.trimAutoWhitespace": false,
