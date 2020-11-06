@@ -26,3 +26,9 @@
 #define RGB_BACKLIGHT_LAYER_3_INDICATOR { .color = { .h = 207, .s = 6 }, .index = 255 }
 
 #define TAPPING_TERM 175
+
+#ifdef RGBLIGHT_ENABLE
+    #define RGB_DI_PIN A6
+    #define RGBLED_NUM 16
+    #define RGBLIGHT_ANIMATIONS
+#endif
