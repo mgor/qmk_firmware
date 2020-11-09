@@ -22,10 +22,10 @@ enum keyboard_layers {
   _MENU      // Menu Layer
 };
 
-#define MG_CAPS LT(2, KC_CAPS)
+#define MG_CAPS LT(_CAPS, KC_CAPS)
 #define MG_UP RSFT_T(KC_UP)
-#define MG_LEFT LT(1, KC_LEFT)
-#define MG_DOWN LT(3, KC_DOWN)
+#define MG_LEFT LT(_FUNC, KC_LEFT)
+#define MG_DOWN LT(_MENU, KC_DOWN)
 #define MG_RIGHT RCTL_T(KC_RIGHT)
 
 // https://beta.docs.qmk.fm/using-qmk/hardware-features/lighting/feature_rgblight
@@ -82,3 +82,49 @@ void matrix_scan_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
+
+#ifdef RGBLIGHT_LAYERS
+// https://docs.splitkb.com/hc/en-us/articles/360011243659-How-can-I-set-the-default-RGB-underglow-color-of-my-keyboard-
+#define MG_LAYER_LEDS 4
+#define MG_LAYER_LEDS_RIGHT (RGBLED_NUM - MG_LAYER_LEDS)
+
+const rgblight_segment_t PROGMEM mg_capslock_active_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+    {0, MG_LAYER_LEDS, HSV_RED}
+);
+
+const rgblight_segment_t PROGMEM mg_func_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+    {MG_LAYER_LEDS_RIGHT - 2, MG_LAYER_LEDS, HSV_GREEN}
+);
+
+const rgblight_segment_t PROGMEM mg_caps_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+    {2, MG_LAYER_LEDS, HSV_ORANGE}
+);
+
+const rgblight_segment_t PROGMEM mg_menu_layer[] = RGBLIGHT_LAYER_SEGMENTS(
+    {MG_LAYER_LEDS_RIGHT, MG_LAYER_LEDS, HSV_CYAN}
+);
+
+const rgblight_segment_t* const PROGMEM mg_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
+    mg_capslock_active_layer,
+    mg_func_layer,
+    mg_caps_layer,
+    mg_menu_layer
+);
+
+void keyboard_post_init_user(void) {
+    rgblight_layers = mg_rgb_layers;
+}
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    rgblight_set_layer_state(1, layer_state_cmp(state, _FUNC));
+    rgblight_set_layer_state(2, layer_state_cmp(state, _CAPS));
+    rgblight_set_layer_state(3, layer_state_cmp(state, _MENU));
+    return state;
+}
+
+bool led_update_user(led_t led_state) {
+    rgblight_set_layer_state(_BASE, led_state.caps_lock);
+    return true;
+}
+#endif
+

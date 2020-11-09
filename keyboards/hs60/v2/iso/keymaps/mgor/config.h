@@ -31,4 +31,6 @@
     #define RGB_DI_PIN A6
     #define RGBLED_NUM 16
     #define RGBLIGHT_ANIMATIONS
+    #define RGBLIGHT_LAYERS
+    #define RGBLIGHT_LAYERS_OVERRIDE_RGB_OFF
 #endif
