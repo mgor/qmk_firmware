@@ -63,7 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [_MENU] = LAYOUT_60_iso( /* MENU */
     KC_TRNS,     KC_TRNS,    KC_TRNS,      KC_TRNS,     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,     KC_TRNS,  KC_TRNS,  KC_TRNS,\
-    KC_TRNS,     MG_RGB_TOG, MG_RGB_RMOD,  MG_RGB_MOD,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,     KC_TRNS,  RESET,            \
+    KC_TRNS,     MG_RGB_TOG, MG_RGB_RMOD,  MG_RGB_MOD,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  EEP_RST,     KC_TRNS,  RESET,            \
     KC_TRNS,     KC_TRNS,    KC_TRNS,      KC_TRNS,     S1_DEC,   S1_INC,   S2_DEC,   S2_INC,   KC_TRNS,  KC_TRNS,  KC_TRNS,     KC_TRNS,  KC_TRNS,  KC_TRNS,\
     KC_TRNS,     KC_TRNS,    EF_DEC,       EF_INC,      H1_DEC,   H1_INC,   H2_DEC,   H2_INC,   BR_DEC,   BR_INC,   ES_DEC,      ES_INC,             KC_TRNS,\
     KC_TRNS,     KC_TRNS,    KC_TRNS,                                       KC_TRNS,                                KC_TRNS,     KC_TRNS,  KC_TRNS,  KC_TRNS),
