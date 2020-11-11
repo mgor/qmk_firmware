@@ -17,15 +17,18 @@
 #define RGB_BACKLIGHT_EFFECT_SPEED 0
 
 #undef RGB_BACKLIGHT_LAYER_1_INDICATOR
-#define RGB_BACKLIGHT_LAYER_1_INDICATOR { .color = { .h = 0, .s = 0 }, .index = 255 }
+#define RGB_BACKLIGHT_LAYER_1_INDICATOR { .color = { .h = 85, .s = 255 }, .index = 255 }
 
 #undef RGB_BACKLIGHT_LAYER_2_INDICATOR
-#define RGB_BACKLIGHT_LAYER_2_INDICATOR { .color = { .h = 2, .s = 176 }, .index = 255 }
+#define RGB_BACKLIGHT_LAYER_2_INDICATOR { .color = { .h = 28, .s = 255 }, .index = 255 }
 
 #undef RGB_BACKLIGHT_LAYER_3_INDICATOR
-#define RGB_BACKLIGHT_LAYER_3_INDICATOR { .color = { .h = 207, .s = 6 }, .index = 255 }
+#define RGB_BACKLIGHT_LAYER_3_INDICATOR { .color = { .h = 128, .s = 255 }, .index = 255 }
 
-#define TAPPING_TERM 175
+#undef RGB_BACKLIGHT_CAPS_LOCK_INDICATOR
+#define RGB_BACKLIGHT_CAPS_LOCK_INDICATOR { .color = { .h = 1, .s = 255 }, .index = 255 }
+
+#define TAPPING_TERM 200
 
 #ifdef RGBLIGHT_ENABLE
     #define RGB_DI_PIN A6

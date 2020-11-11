@@ -102,7 +102,7 @@ LED_TYPE g_ws2812_leds[WS2812_LED_TOTAL];
 #endif
 #endif
 
-#define BACKLIGHT_EFFECT_MAX 10
+#define BACKLIGHT_EFFECT_MAX 11
 
 backlight_config g_config = {
     .use_split_backspace = RGB_BACKLIGHT_USE_SPLIT_BACKSPACE,
@@ -2062,6 +2062,37 @@ void backlight_effect_cycle_radial2(void)
     }
 }
 
+// inspired by https://github.com/half-cambodian-hacker-man/qmk-hs60v3iso-half-kh-hacker, with a mix of backlight_effect_cycle_all()
+void backlight_effect_reactive(void)
+{
+    uint8_t offset = ( g_tick << g_config.effect_speed ) & 0xFF;
+
+    for ( int i=0; i<BACKLIGHT_LED_COUNT; i++ )
+    {
+        uint16_t offset2 = g_key_hit[i]<<2;
+#if !defined(RGB_BACKLIGHT_HS60) && !defined(RGB_BACKLIGHT_NK65) && !defined(RGB_BACKLIGHT_DAWN60) && !defined(RGB_BACKLIGHT_NEBULA68) && !defined(RGB_BACKLIGHT_NEBULA12) && !defined(RGB_BACKLIGHT_NK87)
+        // stabilizer LEDs use spacebar hits
+        if ( i == 36+6 || i == 54+13 || // LC6, LD13
+                ( g_config.use_7u_spacebar && i == 54+14 ) ) // LD14
+        {
+            offset2 = g_key_hit[36+0]<<2;
+        }
+#endif
+        offset2 = (offset2<=63) ? (63-offset2) : 0;
+
+        uint16_t hit_time = g_key_hit[i];
+
+        hit_time *= 13;
+        if (hit_time > 255) hit_time = 255;
+
+        uint8_t brightness = 255 - hit_time;
+
+        HSV hsv = { .h = offset+offset2, .s = 255, .v = brightness };
+        RGB rgb = hsv_to_rgb(hsv);
+        backlight_set_color(i, rgb.r, rgb.g, rgb.b);
+    }
+}
+
 #if defined(RGB_BACKLIGHT_M6_B) || defined(RGB_BACKLIGHT_M10_C)
 void backlight_effect_custom_colors(void)
 {
@@ -2250,6 +2281,9 @@ static void gpt_backlight_timer_task(GPTDriver *gptp)
             break;
         case 10:
             backlight_effect_cycle_radial2();
+            break;
+        case 11:
+            backlight_effect_reactive();
             break;
         default:
             backlight_effect_all_off();

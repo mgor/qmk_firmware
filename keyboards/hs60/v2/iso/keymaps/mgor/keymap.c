@@ -39,8 +39,6 @@ enum keyboard_layers {
     #define MG_RGB_MOD KC_TRNS
 #endif
 
-//This is the ISO version of the PCB
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_BASE] = LAYOUT_60_iso( /* Base */
     KC_GESC,     KC_1,       KC_2,         KC_3,         KC_4,     KC_5,     KC_6,    KC_7,     KC_8,      KC_9,     KC_0,        KC_MINS,  KC_EQL,   KC_BSPC, \
