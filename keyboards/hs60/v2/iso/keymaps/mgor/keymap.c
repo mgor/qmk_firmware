@@ -87,19 +87,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #define MG_LAYER_LEDS_RIGHT (RGBLED_NUM - MG_LAYER_LEDS)
 
 const rgblight_segment_t PROGMEM mg_capslock_active_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, MG_LAYER_LEDS, HSV_RED}
+    {0, MG_LAYER_LEDS, MG_LAYER_CAPSLOCK_COLOR}
 );
 
 const rgblight_segment_t PROGMEM mg_func_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {MG_LAYER_LEDS_RIGHT - 2, MG_LAYER_LEDS, HSV_GREEN}
+    {MG_LAYER_LEDS_RIGHT - 2, MG_LAYER_LEDS, MG_LAYER_1_COLOR}
 );
 
 const rgblight_segment_t PROGMEM mg_caps_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {2, MG_LAYER_LEDS, HSV_ORANGE}
+    {2, MG_LAYER_LEDS, MG_LAYER_2_COLOR}
 );
 
 const rgblight_segment_t PROGMEM mg_menu_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {MG_LAYER_LEDS_RIGHT, MG_LAYER_LEDS, HSV_CYAN}
+    {MG_LAYER_LEDS_RIGHT, MG_LAYER_LEDS, MG_LAYER_3_COLOR}
 );
 
 const rgblight_segment_t* const PROGMEM mg_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
