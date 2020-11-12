@@ -1563,6 +1563,32 @@ void backlight_set_color( int index, uint8_t red, uint8_t green, uint8_t blue )
 #endif
 }
 
+#ifdef MG_LAYER_INDICATOR_ONLY_MAPPED
+void backlight_set_color_all_mapped( uint8_t red, uint8_t green, uint8_t blue )
+{
+    uint8_t layer = get_highest_layer(layer_state);
+
+    for ( int row = 0; row < MATRIX_ROWS; row++ )
+    {
+        for ( int column = 0; column < MATRIX_COLS; column++ ) {
+            uint8_t index;
+            map_row_column_to_led( row, column, &index );
+
+            if ( index < BACKLIGHT_LED_COUNT ) {
+                keypos_t pos = { column, row };
+                uint16_t keycode = keymap_key_to_keycode(layer, pos);
+                bool keycode_set_on_layer = keycode != KC_TRNS && keycode != KC_NO;
+                if (keycode_set_on_layer) {
+                    backlight_set_color(index, red, green, blue);
+                } else {
+                    backlight_set_color(index, 0, 0, 0);
+                }
+            }
+        }
+    }
+}
+#endif
+
 void backlight_set_color_all( uint8_t red, uint8_t green, uint8_t blue )
 {
 #if defined(RGB_BACKLIGHT_M6_B)
@@ -2121,7 +2147,11 @@ void backlight_effect_indicators_set_colors( uint8_t index, HS color )
     RGB rgb = hsv_to_rgb( hsv );
     if ( index == 254 )
     {
+#ifdef MG_LAYER_INDICATOR_ONLY_MAPPED
+        backlight_set_color_all_mapped( rgb.r, rgb.g, rgb.b );
+#else
         backlight_set_color_all( rgb.r, rgb.g, rgb.b );
+#endif
     }
     else
     {

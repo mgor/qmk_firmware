@@ -7,6 +7,8 @@
 #define MG_LAYER_2_COLOR HSV_ORANGE
 #define MG_LAYER_3_COLOR HSV_CYAN
 
+#define MG_LAYER_INDICATOR_ONLY_MAPPED 1
+
 #define _GET_H(H, S, V, INDEX, ...) H
 #define _GET_S(H, S, V, INDEX, ...) S
 #define _GET_INDEX(H, S, V, INDEX, ...) INDEX
@@ -49,4 +51,6 @@
     #define RGBLIGHT_ANIMATIONS
     #define RGBLIGHT_LAYERS
     #define RGBLIGHT_LAYERS_OVERRIDE_RGB_OFF
+    #define MG_LAYER_LEDS 4
+    #define MG_LAYER_LEDS_RIGHT (RGBLED_NUM - MG_LAYER_LEDS)
 #endif

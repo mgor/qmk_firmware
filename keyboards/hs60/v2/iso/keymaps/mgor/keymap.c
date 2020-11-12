@@ -83,8 +83,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #ifdef RGBLIGHT_LAYERS
 // https://docs.splitkb.com/hc/en-us/articles/360011243659-How-can-I-set-the-default-RGB-underglow-color-of-my-keyboard-
-#define MG_LAYER_LEDS 4
-#define MG_LAYER_LEDS_RIGHT (RGBLED_NUM - MG_LAYER_LEDS)
 
 const rgblight_segment_t PROGMEM mg_capslock_active_layer[] = RGBLIGHT_LAYER_SEGMENTS(
     {0, MG_LAYER_LEDS, MG_LAYER_CAPSLOCK_COLOR}
