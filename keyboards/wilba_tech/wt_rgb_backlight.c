@@ -104,6 +104,8 @@ LED_TYPE g_ws2812_leds[WS2812_LED_TOTAL];
 
 #define BACKLIGHT_EFFECT_MAX 11
 
+uint8_t caps_lock_index = 255;
+
 backlight_config g_config = {
     .use_split_backspace = RGB_BACKLIGHT_USE_SPLIT_BACKSPACE,
     .use_split_left_shift = RGB_BACKLIGHT_USE_SPLIT_LEFT_SHIFT,
@@ -1566,21 +1568,26 @@ void backlight_set_color( int index, uint8_t red, uint8_t green, uint8_t blue )
 #ifdef MG_LAYER_INDICATOR_ONLY_MAPPED
 void backlight_set_color_all_mapped( uint8_t red, uint8_t green, uint8_t blue )
 {
-    uint8_t layer = get_highest_layer(layer_state);
+    uint8_t layer = get_highest_layer( layer_state );
 
     for ( int row = 0; row < MATRIX_ROWS; row++ )
     {
-        for ( int column = 0; column < MATRIX_COLS; column++ ) {
+        for ( int column = 0; column < MATRIX_COLS; column++ )
+        {
             uint8_t index;
             map_row_column_to_led( row, column, &index );
 
-            if ( index < BACKLIGHT_LED_COUNT ) {
+            if ( index < BACKLIGHT_LED_COUNT )
+            {
                 keypos_t pos = { column, row };
-                uint16_t keycode = keymap_key_to_keycode(layer, pos);
+                uint16_t keycode = keymap_key_to_keycode( layer, pos );
                 bool keycode_set_on_layer = keycode != KC_TRNS && keycode != KC_NO;
-                if (keycode_set_on_layer) {
+                if ( keycode_set_on_layer )
+                {
                     backlight_set_color(index, red, green, blue);
-                } else {
+                }
+                else
+                {
                     backlight_set_color(index, 0, 0, 0);
                 }
             }
@@ -2179,6 +2186,33 @@ void backlight_effect_indicators_set_colors( uint8_t index, HS color )
     }
 }
 
+void find_keycode_led_index(uint8_t *_index, uint16_t _keycode)
+{
+    *_index = 254; // not found
+    uint8_t layer = get_highest_layer( layer_state );
+
+    for ( int row = 0; row < MATRIX_ROWS; row++ )
+    {
+        for ( int column = 0; column < MATRIX_COLS; column++ )
+        {
+            uint8_t index;
+            map_row_column_to_led( row, column, &index );
+
+            if ( index < BACKLIGHT_LED_COUNT )
+            {
+                keypos_t pos = { column, row };
+                uint16_t keycode = keymap_key_to_keycode( layer, pos ) & 0xFF;
+
+                if ( _keycode == keycode )
+                {
+                    *_index = index;
+                    break;
+                }
+            }
+        }
+    }
+}
+
 // This runs after another backlight effect and replaces
 // colors already set
 void backlight_effect_indicators(void)
@@ -2186,7 +2220,27 @@ void backlight_effect_indicators(void)
     if ( g_config.caps_lock_indicator.index != 255 &&
             ( g_indicator_state & (1<<USB_LED_CAPS_LOCK) ) )
     {
-        backlight_effect_indicators_set_colors( g_config.caps_lock_indicator.index, g_config.caps_lock_indicator.color );
+        // Check if it should work as before
+        if ( g_config.caps_lock_indicator.index != 253 ) {
+            backlight_effect_indicators_set_colors( g_config.caps_lock_indicator.index, g_config.caps_lock_indicator.color );
+        } else { // only light led under key that is mapped to KC_CAPS
+            // we have not tried to find caps_lock_index
+            if ( caps_lock_index == 255 )
+            {
+                find_keycode_led_index( &caps_lock_index, KC_CAPS );
+            }
+
+            // we have tried to find caps_lock_index, but it might not be mapped...
+            if ( caps_lock_index < BACKLIGHT_LED_COUNT )
+            {
+                backlight_effect_indicators_set_colors( caps_lock_index, g_config.caps_lock_indicator.color );
+            }
+            else
+            {
+                backlight_effect_indicators_set_colors( 254, g_config.caps_lock_indicator.color );
+            }
+
+        }
     }
     // This if/else if structure allows higher layers to
     // override lower ones. If we set layer 3's indicator
