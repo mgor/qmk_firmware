@@ -2189,6 +2189,11 @@ void backlight_effect_indicators_set_colors( uint8_t index, HS color )
 void find_keycode_led_index(uint8_t *_index, uint16_t _keycode)
 {
     *_index = 254; // not found
+
+    // not possible for, special, keycodes with values larger than 255
+    if ( _keycode > 255 ) {
+        return;
+    }
     uint8_t layer = get_highest_layer( layer_state );
 
     for ( int row = 0; row < MATRIX_ROWS; row++ )
