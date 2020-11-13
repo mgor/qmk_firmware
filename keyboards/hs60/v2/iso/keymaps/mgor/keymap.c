@@ -85,19 +85,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // https://docs.splitkb.com/hc/en-us/articles/360011243659-How-can-I-set-the-default-RGB-underglow-color-of-my-keyboard-
 
 const rgblight_segment_t PROGMEM mg_capslock_active_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {0, MG_LAYER_LEDS, MG_LAYER_CAPSLOCK_COLOR}
+    {0, RGBLED_NUM, MG_LAYER_CAPSLOCK_COLOR}
 );
 
 const rgblight_segment_t PROGMEM mg_func_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {MG_LAYER_LEDS_RIGHT - 2, MG_LAYER_LEDS, MG_LAYER_1_COLOR}
+    {0, RGBLED_NUM, MG_LAYER_1_COLOR}
 );
 
 const rgblight_segment_t PROGMEM mg_caps_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {2, MG_LAYER_LEDS, MG_LAYER_2_COLOR}
+    {0, RGBLED_NUM, MG_LAYER_2_COLOR}
 );
 
 const rgblight_segment_t PROGMEM mg_menu_layer[] = RGBLIGHT_LAYER_SEGMENTS(
-    {MG_LAYER_LEDS_RIGHT, MG_LAYER_LEDS, MG_LAYER_3_COLOR}
+    {0, RGBLED_NUM, MG_LAYER_3_COLOR}
 );
 
 const rgblight_segment_t* const PROGMEM mg_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
