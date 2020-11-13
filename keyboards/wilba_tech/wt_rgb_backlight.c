@@ -105,6 +105,7 @@ LED_TYPE g_ws2812_leds[WS2812_LED_TOTAL];
 #define BACKLIGHT_EFFECT_MAX 11
 
 uint8_t caps_lock_index = 255;
+keypos_t caps_lock_pos = {};
 
 backlight_config g_config = {
     .use_split_backspace = RGB_BACKLIGHT_USE_SPLIT_BACKSPACE,
@@ -2186,7 +2187,7 @@ void backlight_effect_indicators_set_colors( uint8_t index, HS color )
     }
 }
 
-void find_keycode_led_index(uint8_t *_index, uint16_t _keycode)
+void find_keycode_led_index_and_pos(uint8_t *_index, keypos_t *_pos, uint16_t _keycode)
 {
     *_index = 254; // not found
 
@@ -2211,6 +2212,7 @@ void find_keycode_led_index(uint8_t *_index, uint16_t _keycode)
                 if ( _keycode == keycode )
                 {
                     *_index = index;
+                    *_pos = pos;
                     break;
                 }
             }
@@ -2226,19 +2228,96 @@ void backlight_effect_indicators(void)
             ( g_indicator_state & (1<<USB_LED_CAPS_LOCK) ) )
     {
         // Check if it should work as before
-        if ( g_config.caps_lock_indicator.index != 253 ) {
+        if ( g_config.caps_lock_indicator.index != 253 && g_config.caps_lock_indicator.index != 252 ) {
             backlight_effect_indicators_set_colors( g_config.caps_lock_indicator.index, g_config.caps_lock_indicator.color );
         } else { // only light led under key that is mapped to KC_CAPS
             // we have not tried to find caps_lock_index
             if ( caps_lock_index == 255 )
             {
-                find_keycode_led_index( &caps_lock_index, KC_CAPS );
+                find_keycode_led_index_and_pos( &caps_lock_index, &caps_lock_pos, KC_CAPS );
             }
 
             // we have tried to find caps_lock_index, but it might not be mapped...
             if ( caps_lock_index < BACKLIGHT_LED_COUNT )
             {
                 backlight_effect_indicators_set_colors( caps_lock_index, g_config.caps_lock_indicator.color );
+
+                if ( g_config.caps_lock_indicator.index == 252 )
+                {
+                    uint8_t index;
+
+                    // left
+                    if ( caps_lock_pos.col - 1 > -1 ) {
+                        map_row_column_to_led( caps_lock_pos.row, caps_lock_pos.col - 1, &index);
+
+                        if ( index < BACKLIGHT_LED_COUNT ) {
+                            backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
+                        }
+                    }
+
+                    // right
+                    if ( caps_lock_pos.col + 1 < MATRIX_COLS ) {
+                        map_row_column_to_led( caps_lock_pos.row, caps_lock_pos.col + 1, &index);
+
+                        if ( index < BACKLIGHT_LED_COUNT ) {
+                            backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
+                        }
+                    }
+
+                    // above
+                    if ( caps_lock_pos.row - 1 > -1 ) {
+                        map_row_column_to_led( caps_lock_pos.row - 1, caps_lock_pos.col, &index);
+
+                        if ( index < BACKLIGHT_LED_COUNT ) {
+                            backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
+                        }
+
+                        // left
+                        if ( caps_lock_pos.col - 1 > -1 ) {
+                            map_row_column_to_led( caps_lock_pos.row - 1, caps_lock_pos.col - 1, &index);
+
+                            if ( index < BACKLIGHT_LED_COUNT ) {
+                                backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
+                            }
+                        }
+
+                        // right
+                        if ( caps_lock_pos.col + 1 < MATRIX_COLS ) {
+                            map_row_column_to_led( caps_lock_pos.row - 1, caps_lock_pos.col + 1, &index);
+
+                            if ( index < BACKLIGHT_LED_COUNT ) {
+                                backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
+                            }
+                        }
+                    }
+
+                    // below
+                    if ( caps_lock_pos.row + 1 < MATRIX_ROWS ) {
+                        map_row_column_to_led( caps_lock_pos.row + 1, caps_lock_pos.col, &index);
+
+                        if ( index < BACKLIGHT_LED_COUNT ) {
+                            backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
+                        }
+
+                        // left
+                        if ( caps_lock_pos.col - 1 > -1 ) {
+                            map_row_column_to_led( caps_lock_pos.row + 1, caps_lock_pos.col - 1, &index);
+
+                            if ( index < BACKLIGHT_LED_COUNT ) {
+                                backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
+                            }
+                        }
+
+                        // right
+                        if ( caps_lock_pos.col + 1 < MATRIX_COLS ) {
+                            map_row_column_to_led( caps_lock_pos.row + 1, caps_lock_pos.col + 1, &index);
+
+                            if ( index < BACKLIGHT_LED_COUNT ) {
+                                backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
+                            }
+                        }
+                    }
+                }
             }
             else
             {
