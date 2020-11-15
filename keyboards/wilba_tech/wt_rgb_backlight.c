@@ -104,8 +104,10 @@ LED_TYPE g_ws2812_leds[WS2812_LED_TOTAL];
 
 #define BACKLIGHT_EFFECT_MAX 11
 
-uint8_t caps_lock_index = 255;
-keypos_t caps_lock_pos = {};
+keypos_led_t caps_lock = {
+    .led = 255,
+    .pos = { -1, -1 }
+};
 
 backlight_config g_config = {
     .use_split_backspace = RGB_BACKLIGHT_USE_SPLIT_BACKSPACE,
@@ -2096,8 +2098,7 @@ void backlight_effect_cycle_radial2(void)
     }
 }
 
-// inspired by https://github.com/half-cambodian-hacker-man/qmk-hs60v3iso-half-kh-hacker, with a mix of backlight_effect_cycle_all()
-void backlight_effect_reactive(void)
+/*void backlight_effect_reactive(void)
 {
     uint8_t offset = ( g_tick << g_config.effect_speed ) & 0xFF;
 
@@ -2125,7 +2126,7 @@ void backlight_effect_reactive(void)
         RGB rgb = hsv_to_rgb(hsv);
         backlight_set_color(i, rgb.r, rgb.g, rgb.b);
     }
-}
+}*/
 
 #if defined(RGB_BACKLIGHT_M6_B) || defined(RGB_BACKLIGHT_M10_C)
 void backlight_effect_custom_colors(void)
@@ -2149,9 +2150,9 @@ void backlight_effect_custom_colors(void)
 }
 #endif
 
-void backlight_effect_indicators_set_colors( uint8_t index, HS color )
+void backlight_effect_indicators_set_colorsb( uint8_t index, HS color, uint8_t brightness )
 {
-    HSV hsv = { .h = color.h, .s = color.s, .v = g_config.brightness };
+    HSV hsv = { .h = color.h, .s = color.s, .v = brightness };
     RGB rgb = hsv_to_rgb( hsv );
     if ( index == 254 )
     {
@@ -2187,9 +2188,14 @@ void backlight_effect_indicators_set_colors( uint8_t index, HS color )
     }
 }
 
-void find_keycode_led_index_and_pos(uint8_t *_index, keypos_t *_pos, uint16_t _keycode)
+void backlight_effect_indicators_set_colors( uint8_t index, HS color )
 {
-    *_index = 254; // not found
+    backlight_effect_indicators_set_colorsb( index, color, g_config.brightness );
+}
+
+void find_keycode_led_index_and_pos(keypos_led_t *_key, uint16_t _keycode)
+{
+    _key->led = 254; // not found
 
     // not possible for, special, keycodes with values larger than 255
     if ( _keycode > 255 ) {
@@ -2201,19 +2207,162 @@ void find_keycode_led_index_and_pos(uint8_t *_index, keypos_t *_pos, uint16_t _k
     {
         for ( int column = 0; column < MATRIX_COLS; column++ )
         {
-            uint8_t index;
-            map_row_column_to_led( row, column, &index );
+            uint8_t led;
+            map_row_column_to_led( row, column, &led );
 
-            if ( index < BACKLIGHT_LED_COUNT )
+            if ( led < BACKLIGHT_LED_COUNT )
             {
                 keypos_t pos = { column, row };
                 uint16_t keycode = keymap_key_to_keycode( layer, pos ) & 0xFF;
 
                 if ( _keycode == keycode )
                 {
-                    *_index = index;
-                    *_pos = pos;
+                    _key->led = led;
+                    _key->pos.row = row;
+                    _key->pos.col = column;
                     break;
+                }
+            }
+        }
+    }
+}
+
+void backlight_effect_around_ledb( keypos_led_t key, HS color, uint8_t brightness )
+{
+    uint8_t index;
+    uint8_t row;
+
+    brightness /= 2;
+
+    if ( brightness < 10 ) {
+        brightness = 10;
+    }
+
+    // left
+    if ( key.pos.col - 1 > -1 ) {
+        map_row_column_to_led( key.pos.row, key.pos.col - 1, &index );
+
+        if ( index < BACKLIGHT_LED_COUNT ) {
+            backlight_effect_indicators_set_colorsb( index, color, brightness );
+        }
+    }
+
+    // right
+    if ( key.pos.col + 1 < MATRIX_COLS ) {
+        map_row_column_to_led( key.pos.row, key.pos.col + 1, &index );
+
+        if ( index < BACKLIGHT_LED_COUNT ) {
+            backlight_effect_indicators_set_colorsb( index, color, brightness );
+        }
+    }
+
+    // above
+    if ( key.pos.row - 1 > -1 ) {
+        row = key.pos.row - 1;
+        map_row_column_to_led( row, key.pos.col, &index );
+
+        if ( index < BACKLIGHT_LED_COUNT ) {
+            backlight_effect_indicators_set_colorsb( index, color, brightness );
+        }
+
+        // left
+        if ( key.pos.col - 1 > -1 ) {
+            map_row_column_to_led( row, key.pos.col - 1, &index );
+
+            if ( index < BACKLIGHT_LED_COUNT ) {
+                backlight_effect_indicators_set_colorsb( index, color, brightness );
+            }
+        }
+
+        // right
+        if ( key.pos.col + 1 < MATRIX_COLS ) {
+            map_row_column_to_led( row, key.pos.col + 1, &index );
+
+            if ( index < BACKLIGHT_LED_COUNT ) {
+                backlight_effect_indicators_set_colorsb( index, color, brightness );
+            }
+        }
+    }
+
+    // below
+    if ( key.pos.row + 1 < MATRIX_ROWS ) {
+        row = key.pos.row + 1;
+        map_row_column_to_led( row, key.pos.col, &index );
+
+        if ( index < BACKLIGHT_LED_COUNT ) {
+            backlight_effect_indicators_set_colorsb( index, color, brightness );
+        }
+
+        // left
+        if ( key.pos.col - 1 > -1 ) {
+            map_row_column_to_led( row, key.pos.col - 1, &index );
+
+            if ( index < BACKLIGHT_LED_COUNT ) {
+                backlight_effect_indicators_set_colorsb( index, color, brightness );
+            }
+        }
+
+        // right
+        if ( key.pos.col + 1 < MATRIX_COLS ) {
+            map_row_column_to_led( row, key.pos.col + 1, &index );
+
+            if ( index < BACKLIGHT_LED_COUNT ) {
+                backlight_effect_indicators_set_colorsb( index, color, brightness );
+            }
+        }
+    }
+}
+
+void backlight_effect_around_led( keypos_led_t key, HS color )
+{
+    backlight_effect_around_ledb( key, color, g_config.brightness );
+}
+
+// inspired by https://github.com/half-cambodian-hacker-man/qmk-hs60v3iso-half-kh-hacker, with a mix of backlight_effect_cycle_all()
+void backlight_effect_reactive(void)
+{
+    uint8_t offset = ( g_tick << g_config.effect_speed ) & 0xFF;
+
+    for ( int row = 0; row < MATRIX_ROWS; row++ )
+    {
+        for ( int column = 0; column < MATRIX_COLS; column++ )
+        {
+            uint8_t i;
+            map_row_column_to_led( row, column, &i );
+
+            if ( i < BACKLIGHT_LED_COUNT )
+            {
+                uint16_t offset2 = g_key_hit[i]<<2;
+        #if !defined(RGB_BACKLIGHT_HS60) && !defined(RGB_BACKLIGHT_NK65) && !defined(RGB_BACKLIGHT_DAWN60) && !defined(RGB_BACKLIGHT_NEBULA68) && !defined(RGB_BACKLIGHT_NEBULA12) && !defined(RGB_BACKLIGHT_NK87)
+                // stabilizer LEDs use spacebar hits
+                if ( i == 36+6 || i == 54+13 || // LC6, LD13
+                        ( g_config.use_7u_spacebar && i == 54+14 ) ) // LD14
+                {
+                    offset2 = g_key_hit[36+0]<<2;
+                }
+        #endif
+                offset2 = (offset2<=63) ? (63-offset2) : 0;
+
+                uint16_t hit_time = g_key_hit[i];
+
+                hit_time *= 13;
+                if (hit_time > 255) hit_time = 255;
+
+                uint8_t brightness = 255 - hit_time;
+
+                HSV hsv = { .h = offset+offset2, .s = 255, .v = brightness };
+                RGB rgb = hsv_to_rgb(hsv);
+                backlight_set_color(i, rgb.r, rgb.g, rgb.b);
+                if (brightness > 10) {
+                    keypos_led_t key = {
+                        .led = i,
+                        .pos = { .col = column, .row = row }
+                    };
+                    HS color = {
+                        .h = hsv.h,
+                        .s = hsv.s
+                    };
+                    backlight_effect_around_ledb( key, color, brightness );
                 }
             }
         }
@@ -2232,91 +2381,18 @@ void backlight_effect_indicators(void)
             backlight_effect_indicators_set_colors( g_config.caps_lock_indicator.index, g_config.caps_lock_indicator.color );
         } else { // only light led under key that is mapped to KC_CAPS
             // we have not tried to find caps_lock_index
-            if ( caps_lock_index == 255 )
+            if ( caps_lock.led == 255 )
             {
-                find_keycode_led_index_and_pos( &caps_lock_index, &caps_lock_pos, KC_CAPS );
+                find_keycode_led_index_and_pos( &caps_lock, KC_CAPS );
             }
 
             // we have tried to find caps_lock_index, but it might not be mapped...
-            if ( caps_lock_index < BACKLIGHT_LED_COUNT )
+            if ( caps_lock.led < BACKLIGHT_LED_COUNT )
             {
-                backlight_effect_indicators_set_colors( caps_lock_index, g_config.caps_lock_indicator.color );
-
+                backlight_effect_indicators_set_colors( caps_lock.led, g_config.caps_lock_indicator.color );
                 if ( g_config.caps_lock_indicator.index == 252 )
                 {
-                    uint8_t index;
-
-                    // left
-                    if ( caps_lock_pos.col - 1 > -1 ) {
-                        map_row_column_to_led( caps_lock_pos.row, caps_lock_pos.col - 1, &index);
-
-                        if ( index < BACKLIGHT_LED_COUNT ) {
-                            backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
-                        }
-                    }
-
-                    // right
-                    if ( caps_lock_pos.col + 1 < MATRIX_COLS ) {
-                        map_row_column_to_led( caps_lock_pos.row, caps_lock_pos.col + 1, &index);
-
-                        if ( index < BACKLIGHT_LED_COUNT ) {
-                            backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
-                        }
-                    }
-
-                    // above
-                    if ( caps_lock_pos.row - 1 > -1 ) {
-                        map_row_column_to_led( caps_lock_pos.row - 1, caps_lock_pos.col, &index);
-
-                        if ( index < BACKLIGHT_LED_COUNT ) {
-                            backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
-                        }
-
-                        // left
-                        if ( caps_lock_pos.col - 1 > -1 ) {
-                            map_row_column_to_led( caps_lock_pos.row - 1, caps_lock_pos.col - 1, &index);
-
-                            if ( index < BACKLIGHT_LED_COUNT ) {
-                                backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
-                            }
-                        }
-
-                        // right
-                        if ( caps_lock_pos.col + 1 < MATRIX_COLS ) {
-                            map_row_column_to_led( caps_lock_pos.row - 1, caps_lock_pos.col + 1, &index);
-
-                            if ( index < BACKLIGHT_LED_COUNT ) {
-                                backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
-                            }
-                        }
-                    }
-
-                    // below
-                    if ( caps_lock_pos.row + 1 < MATRIX_ROWS ) {
-                        map_row_column_to_led( caps_lock_pos.row + 1, caps_lock_pos.col, &index);
-
-                        if ( index < BACKLIGHT_LED_COUNT ) {
-                            backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
-                        }
-
-                        // left
-                        if ( caps_lock_pos.col - 1 > -1 ) {
-                            map_row_column_to_led( caps_lock_pos.row + 1, caps_lock_pos.col - 1, &index);
-
-                            if ( index < BACKLIGHT_LED_COUNT ) {
-                                backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
-                            }
-                        }
-
-                        // right
-                        if ( caps_lock_pos.col + 1 < MATRIX_COLS ) {
-                            map_row_column_to_led( caps_lock_pos.row + 1, caps_lock_pos.col + 1, &index);
-
-                            if ( index < BACKLIGHT_LED_COUNT ) {
-                                backlight_effect_indicators_set_colors( index, g_config.caps_lock_indicator.color );
-                            }
-                        }
-                    }
+                   backlight_effect_around_led( caps_lock, g_config.caps_lock_indicator.color );
                 }
             }
             else

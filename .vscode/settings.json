@@ -19,7 +19,11 @@
         "utility": "c",
         "ranges": "c",
         "istream": "c",
-        "streambuf": "c"
+        "streambuf": "c",
+        "bitset": "c",
+        "forward_list": "c",
+        "fstream": "c",
+        "ostream": "c"
     },
     "[markdown]": {
         "editor.trimAutoWhitespace": false,
