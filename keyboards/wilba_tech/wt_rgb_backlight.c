@@ -145,6 +145,7 @@ uint8_t g_indicator_state = 0;
 
 // Global tick at 20 Hz
 uint32_t g_tick = 0;
+uint32_t g_last_tick = 0;
 
 // Ticks since this key was last hit.
 uint8_t g_key_hit[BACKLIGHT_LED_COUNT];
@@ -1633,6 +1634,7 @@ void backlight_set_key_hit(uint8_t row, uint8_t column)
     uint8_t led;
     map_row_column_to_led(row,column,&led);
     g_key_hit[led] = 0;
+    g_last_tick = g_tick;
 
     g_any_key_hit = 0;
 }
@@ -2098,36 +2100,6 @@ void backlight_effect_cycle_radial2(void)
     }
 }
 
-/*void backlight_effect_reactive(void)
-{
-    uint8_t offset = ( g_tick << g_config.effect_speed ) & 0xFF;
-
-    for ( int i=0; i<BACKLIGHT_LED_COUNT; i++ )
-    {
-        uint16_t offset2 = g_key_hit[i]<<2;
-#if !defined(RGB_BACKLIGHT_HS60) && !defined(RGB_BACKLIGHT_NK65) && !defined(RGB_BACKLIGHT_DAWN60) && !defined(RGB_BACKLIGHT_NEBULA68) && !defined(RGB_BACKLIGHT_NEBULA12) && !defined(RGB_BACKLIGHT_NK87)
-        // stabilizer LEDs use spacebar hits
-        if ( i == 36+6 || i == 54+13 || // LC6, LD13
-                ( g_config.use_7u_spacebar && i == 54+14 ) ) // LD14
-        {
-            offset2 = g_key_hit[36+0]<<2;
-        }
-#endif
-        offset2 = (offset2<=63) ? (63-offset2) : 0;
-
-        uint16_t hit_time = g_key_hit[i];
-
-        hit_time *= 13;
-        if (hit_time > 255) hit_time = 255;
-
-        uint8_t brightness = 255 - hit_time;
-
-        HSV hsv = { .h = offset+offset2, .s = 255, .v = brightness };
-        RGB rgb = hsv_to_rgb(hsv);
-        backlight_set_color(i, rgb.r, rgb.g, rgb.b);
-    }
-}*/
-
 #if defined(RGB_BACKLIGHT_M6_B) || defined(RGB_BACKLIGHT_M10_C)
 void backlight_effect_custom_colors(void)
 {
@@ -2322,6 +2294,11 @@ void backlight_effect_around_led( keypos_led_t key, HS color )
 void backlight_effect_reactive(void)
 {
     uint8_t offset = ( g_tick << g_config.effect_speed ) & 0xFF;
+    uint8_t offset3 = ( g_last_tick << g_config.effect_speed ) & 0xFF;
+
+    if (offset3 > offset) {
+        offset3 = 0;
+    }
 
     for ( int row = 0; row < MATRIX_ROWS; row++ )
     {
@@ -2343,9 +2320,8 @@ void backlight_effect_reactive(void)
         #endif
                 offset2 = (offset2<=63) ? (63-offset2) : 0;
 
-                uint16_t hit_time = g_key_hit[i];
+                uint16_t hit_time = g_key_hit[i] + ((offset - offset3) * 8);
 
-                hit_time *= 13;
                 if (hit_time > 255) hit_time = 255;
 
                 uint8_t brightness = 255 - hit_time;
@@ -2353,17 +2329,6 @@ void backlight_effect_reactive(void)
                 HSV hsv = { .h = offset+offset2, .s = 255, .v = brightness };
                 RGB rgb = hsv_to_rgb(hsv);
                 backlight_set_color(i, rgb.r, rgb.g, rgb.b);
-                if (brightness > 10) {
-                    keypos_led_t key = {
-                        .led = i,
-                        .pos = { .col = column, .row = row }
-                    };
-                    HS color = {
-                        .h = hsv.h,
-                        .s = hsv.s
-                    };
-                    backlight_effect_around_ledb( key, color, brightness );
-                }
             }
         }
     }
