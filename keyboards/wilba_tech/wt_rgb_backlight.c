@@ -2295,9 +2295,10 @@ void backlight_effect_reactive(void)
 {
     uint8_t offset = ( g_tick << g_config.effect_speed ) & 0xFF;
     uint8_t offset3 = ( g_last_tick << g_config.effect_speed ) & 0xFF;
+    uint8_t timer = offset - offset3;
 
-    if (offset3 > offset) {
-        offset3 = 0;
+    if (timer < 0) {
+        timer = 0;
     }
 
     for ( int row = 0; row < MATRIX_ROWS; row++ )
@@ -2320,7 +2321,7 @@ void backlight_effect_reactive(void)
         #endif
                 offset2 = (offset2<=63) ? (63-offset2) : 0;
 
-                uint16_t hit_time = g_key_hit[i] + ((offset - offset3) * 8);
+                uint16_t hit_time = g_key_hit[i] + (timer * 8);
 
                 if (hit_time > 255) hit_time = 255;
 
