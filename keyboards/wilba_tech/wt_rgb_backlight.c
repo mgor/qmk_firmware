@@ -1634,7 +1634,6 @@ void backlight_set_key_hit(uint8_t row, uint8_t column)
     uint8_t led;
     map_row_column_to_led(row,column,&led);
     g_key_hit[led] = 0;
-    g_last_tick = g_tick;
 
     g_any_key_hit = 0;
 }
@@ -2294,12 +2293,6 @@ void backlight_effect_around_led( keypos_led_t key, HS color )
 void backlight_effect_reactive(void)
 {
     uint8_t offset = ( g_tick << g_config.effect_speed ) & 0xFF;
-    uint8_t offset3 = ( g_last_tick << g_config.effect_speed ) & 0xFF;
-    uint8_t timer = offset - offset3;
-
-    if (timer < 0) {
-        timer = 0;
-    }
 
     for ( int row = 0; row < MATRIX_ROWS; row++ )
     {
@@ -2321,7 +2314,7 @@ void backlight_effect_reactive(void)
         #endif
                 offset2 = (offset2<=63) ? (63-offset2) : 0;
 
-                uint16_t hit_time = g_key_hit[i] + (timer * 8);
+                uint16_t hit_time = g_key_hit[i] * 13;
 
                 if (hit_time > 255) hit_time = 255;
 
