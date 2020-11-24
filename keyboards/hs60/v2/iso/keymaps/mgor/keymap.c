@@ -35,6 +35,9 @@ enum keyboard_layers {
     #define MG_RGB_MOD RGB_MOD
     #define MG_RGB_VAD RGB_VAD
     #define MG_RGB_VAI RGB_VAI
+    static uint16_t idle_timer = 0;
+    static uint8_t halfmin_counter = 0;
+    static bool rgblight_on = true;
 #else
     #define MG_RGB_TOG KC_TRNS
     #define MG_RGB_RMOD KC_TRNS
@@ -78,10 +81,35 @@ void matrix_init_user(void) {
 }
 
 void matrix_scan_user(void) {
-  //user matrix
+#ifdef RGBLIGHT_ENABLE
+    if (idle_timer == 0) {
+        idle_timer = timer_read();
+    }
+
+    if (rgblight_on && timer_elapsed(idle_timer) > 30000) {
+        halfmin_counter++;
+        idle_timer = timer_read();
+    }
+
+    if (rgblight_on && RGB_BACKLIGHT_DISABLE_AFTER_TIMEOUT > 0 && halfmin_counter >= RGB_BACKLIGHT_DISABLE_AFTER_TIMEOUT * 2) {
+        rgblight_disable_noeeprom();
+        rgblight_on = false;
+        halfmin_counter = 0;
+    }
+#endif
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+#ifdef RGBLIGHT_ENABLE
+    if (record->event.pressed) {
+        if (rgblight_on == false) {
+            rgblight_enable_noeeprom();
+            rgblight_on = true;
+        }
+        idle_timer = timer_read();
+        halfmin_counter = 0;
+    }
+#endif
   return true;
 }
 
