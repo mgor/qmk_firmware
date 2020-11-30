@@ -46,3 +46,5 @@
 // Most tactile encoders have detents every 4 stages
 #define ENCODER_RESOLUTION 4
 
+// Disable backlight when idle (in minutes), 0 = no idle timeout
+#define RGBLIGHT_DISABLE_AFTER_TIMEOUT 3

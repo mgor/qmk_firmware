@@ -37,7 +37,7 @@ enum keyboard_layers {
     #define MG_RGB_VAI RGB_VAI
     static uint16_t idle_timer = 0;
     static uint8_t halfmin_counter = 0;
-    static bool rgblight_on = true;
+    static bool rgblight_idle = false;
 #else
     #define MG_RGB_TOG KC_TRNS
     #define MG_RGB_RMOD KC_TRNS
@@ -86,14 +86,14 @@ void matrix_scan_user(void) {
         idle_timer = timer_read();
     }
 
-    if (rgblight_on && timer_elapsed(idle_timer) > 30000) {
+    if (!rgblight_idle && timer_elapsed(idle_timer) > 30000) {
         halfmin_counter++;
         idle_timer = timer_read();
     }
 
-    if (rgblight_on && RGB_BACKLIGHT_DISABLE_AFTER_TIMEOUT > 0 && halfmin_counter >= RGB_BACKLIGHT_DISABLE_AFTER_TIMEOUT * 2) {
+    if (!rgblight_idle && RGB_BACKLIGHT_DISABLE_AFTER_TIMEOUT > 0 && halfmin_counter >= RGB_BACKLIGHT_DISABLE_AFTER_TIMEOUT * 2) {
         rgblight_disable_noeeprom();
-        rgblight_on = false;
+        rgblight_idle = true;
         halfmin_counter = 0;
     }
 #endif
@@ -102,9 +102,9 @@ void matrix_scan_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #ifdef RGBLIGHT_ENABLE
     if (record->event.pressed) {
-        if (rgblight_on == false) {
+        if (rgblight_idle == true) {
             rgblight_enable_noeeprom();
-            rgblight_on = true;
+            rgblight_idle = false;
         }
         idle_timer = timer_read();
         halfmin_counter = 0;
