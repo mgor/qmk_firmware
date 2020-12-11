@@ -64,7 +64,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_CAPS] = LAYOUT_60_iso( /* CAPS */
     KC_TRNS,     KC_TRNS,    KC_TRNS,      KC_TRNS,      KC_TRNS,    KC_TRNS,     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,     KC_TRNS,  KC_TRNS,  KC_TRNS, \
     KC_TRNS,     KC_PGUP,    KC_HOME,      KC_END,       KC_TRNS,    KC_TRNS,     KC_TRNS,  KC_TRNS,  KC_INS,   KC_MUTE,  KC_VOLD,     KC_VOLU,  KC_TRNS,           \
-    KC_TRNS,     KC_PGDN,    KC_TRNS,      KC_TRNS,      KC_TRNS,    KC_TRNS,     KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  KC_MPRV,     KC_MPLY,  KC_MNXT,  KC_TRNS, \
+    KC_TRNS,     KC_TRNS,    KC_PGDN,      KC_TRNS,      KC_TRNS,    KC_TRNS,     KC_LEFT,  KC_DOWN,  KC_UP,    KC_RGHT,  KC_MPRV,     KC_MPLY,  KC_MNXT,  KC_TRNS, \
     KC_TRNS,     KC_TRNS,    KC_INS,       KC_TRNS,      KC_CALC,    KC_TRNS,     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,     KC_TRNS,            KC_UP,   \
     KC_TRNS,     KC_TRNS,    KC_TRNS,                                             KC_TRNS,                                KC_TRNS,     KC_LEFT,  KC_DOWN,  KC_RIGHT),
 
