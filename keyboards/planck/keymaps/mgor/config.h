@@ -48,3 +48,5 @@
 
 // Disable backlight when idle (in minutes), 0 = no idle timeout
 #define RGBLIGHT_DISABLE_AFTER_TIMEOUT 3
+
+#define TAPPING_TERM 200
