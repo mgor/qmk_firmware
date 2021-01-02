@@ -1,0 +1,24 @@
+name: Merge upstream master
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  merge-upstream:
+    runs-on: ubuntu-latest
+
+    if: github.repository == 'mgor/qmk_firmware'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: mgor
+          fetch-depth: 0
+      - name: Merge upstream
+        uses: exions/merge-upstream@v1
+        with:
+          upstream: qmk/qmk_firmware
+          upstream-branch: master
+          branch: mgor
