@@ -18,6 +18,8 @@ jobs:
           fetch-depth: 0
       - name: Add upstream
         run: |
+          git config --global user.email "github@mgor.se"
+          git config --global user.name "Automated by Mikael Göransson"
           git remote add -f upstream https://github.com/qmk/qmk_firmware
           git remote -v
       - name: Fetch and merge upstream
