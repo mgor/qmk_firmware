@@ -78,6 +78,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 void matrix_init_user(void) {
   //user initialization
+#if defined(RGBLIGHT_ENABLE) && defined(MG_RGBLIGHT_EFFECT)
+    rgblight_enable();
+    rgblight_mode(MG_RGBLIGHT_EFFECT);
+    rgblight_sethsv(MG_BASE_COLOR);
+#endif
 }
 
 void matrix_scan_user(void) {

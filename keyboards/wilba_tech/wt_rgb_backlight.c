@@ -103,7 +103,7 @@ LED_TYPE g_ws2812_leds[WS2812_LED_TOTAL];
 #endif
 #endif
 
-#define BACKLIGHT_EFFECT_MAX 11
+#define BACKLIGHT_EFFECT_MAX 12
 
 keypos_led_t caps_lock = {
     .led = 255,
@@ -2292,7 +2292,7 @@ void backlight_effect_around_led( keypos_led_t key, HS color )
 }
 
 // inspired by https://github.com/half-cambodian-hacker-man/qmk-hs60v3iso-half-kh-hacker, with a mix of backlight_effect_cycle_all()
-void backlight_effect_reactive(void)
+void backlight_effect_reactive_random(void)
 {
     uint8_t offset = ( g_tick << g_config.effect_speed ) & 0xFF;
 
@@ -2323,8 +2323,33 @@ void backlight_effect_reactive(void)
                 uint8_t brightness = 255 - hit_time;
 
                 HSV hsv = { .h = offset+offset2, .s = 255, .v = brightness };
-                RGB rgb = hsv_to_rgb(hsv);
-                backlight_set_color(i, rgb.r, rgb.g, rgb.b);
+                RGB rgb = hsv_to_rgb( hsv );
+                backlight_set_color( i, rgb.r, rgb.g, rgb.b );
+            }
+        }
+    }
+}
+
+void backlight_effect_reactive_solid(void)
+{
+    for ( int row = 0; row < MATRIX_ROWS; row++ )
+    {
+        for ( int column = 0; column < MATRIX_COLS; column ++ )
+        {
+            uint8_t i;
+            map_row_column_to_led( row, column, &i );
+
+            if ( i < BACKLIGHT_LED_COUNT )
+            {
+                uint16_t hit_time = g_key_hit[i] * 13;
+
+                if (hit_time > 255) hit_time = 255;
+
+                uint8_t brightness = 255 - hit_time;
+
+                HSV hsv = { .h = g_config.color_1.h, .s = g_config.color_1.s, .v = brightness };
+                RGB rgb = hsv_to_rgb( hsv );
+                backlight_set_color( i, rgb.r, rgb.g, rgb.b );
             }
         }
     }
@@ -2488,7 +2513,10 @@ static void gpt_backlight_timer_task(GPTDriver *gptp)
             backlight_effect_cycle_radial2();
             break;
         case 11:
-            backlight_effect_reactive();
+            backlight_effect_reactive_random();
+            break;
+        case 12:
+            backlight_effect_reactive_solid();
             break;
         default:
             backlight_effect_all_off();
