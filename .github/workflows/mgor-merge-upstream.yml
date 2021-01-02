@@ -16,9 +16,14 @@ jobs:
         with:
           ref: mgor
           fetch-depth: 0
-      - name: Merge upstream
-        uses: exions/merge-upstream@v1
-        with:
-          upstream: qmk/qmk_firmware
-          upstream-branch: master
-          branch: mgor
+      - name: Add upstream
+        run: |
+          git remote add -f upstream https://github.com/qmk/qmk_firmware
+          git remote -v
+      - name: Fetch and merge upstream
+        run: |
+          git fetch upstream
+          git merge --no-edit upstream/master | awk '/Already up to date/ {exit 1}' || exit 0
+      - name: Push upstream changes
+        run: |
+          git push
