@@ -1,4 +1,4 @@
-/* Copyright 2019 Evy Dekkers
+/* Copyright 2020 MrT1ddl3s
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,31 +13,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "pockettype.h"
 
-void matrix_init_kb(void) {
-	led_init_ports();
-  
-	matrix_init_user();
-};
+#pragma once
 
-void led_init_ports(void) {
-    // * Enable LED anodes (Vbus pin is replaced by B0 on some boards)
-    setPinOutput(B0);
-    writePinHigh(B0);
+#include "config_common.h"
 
-    // * Set our LED pins as output and high
-    setPinOutput(F5);
-    writePinHigh(F5);
-    
-    setPinOutput(F4);
-    writePinLow(F4);
-}
+/* USB Device descriptor parameter */
+#define VENDOR_ID       0xFEED
+#define PRODUCT_ID      0x0000
+#define DEVICE_VER      0x0001
+#define MANUFACTURER    MrT1ddl3s
+#define PRODUCT         knobgoblin
 
-bool led_update_kb(led_t led_state) {
-    if(led_update_user(led_state)) {
-        writePin(F5, !led_state.caps_lock);
-    }
+/* key matrix size */
+#define MATRIX_ROWS 5
+#define MATRIX_COLS 5
 
-    return true;
-}
+/* key matrix pins */
+#define MATRIX_ROW_PINS { D4, B6, B2, B3, B1 }
+#define MATRIX_COL_PINS { B5, B4, E6, D7, C6 }
+#define UNUSED_PINS
+
+#define ENCODERS_PAD_A { F7, F5 }
+#define ENCODERS_PAD_B { F6, F4 }
+
+#define OLED_TIMEOUT 180000
+
+/* COL2ROW or ROW2COL */
+#define DIODE_DIRECTION COL2ROW
+
+#define DEBOUNCE 2

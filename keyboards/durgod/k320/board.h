@@ -1,6 +1,5 @@
 /*
-Copyright 2019 @foostan
-Copyright 2020 Drashna Jaelre <@drashna>
+Copyright 2021 Don Kjer
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,11 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define USE_SERIAL
-#define SOFT_SERIAL_PIN D2
+#define STM32_HSECLK                12000000U
+#include_next <board.h>
+#undef STM32_HSE_BYPASS
 
-#ifdef RGB_MATRIX_ENABLE
-#    define RGB_MATRIX_SPLIT { 27, 27 }
-#endif
-
-#define DIODE_DIRECTION COL2ROW
