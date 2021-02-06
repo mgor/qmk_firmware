@@ -2,7 +2,11 @@
 
 #include <rgblight_list.h>
 
+#ifdef RGBLIGHT_ENABLE
 #define MG_BASE_COLOR HSV_SPRINGGREEN
+#else
+#define MG_BASE_COLOR HSV_YELLOW
+#endif
 #define MG_LAYER_CAPSLOCK_COLOR HSV_RED
 #define MG_LAYER_1_COLOR HSV_BLUE
 #define MG_LAYER_2_COLOR HSV_PURPLE
