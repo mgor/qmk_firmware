@@ -2,8 +2,11 @@
 
 #include <rgblight_list.h>
 
+#undef HSV_ORANGE
+#define HSV_ORANGE 13, 255, 255
+
 #ifdef RGBLIGHT_ENABLE
-#define MG_BASE_COLOR HSV_CORAL
+#define MG_BASE_COLOR HSV_ORANGE
 #else
 #define MG_BASE_COLOR HSV_YELLOW
 #endif
