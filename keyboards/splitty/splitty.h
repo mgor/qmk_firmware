@@ -1,4 +1,4 @@
-/* Copyright 2020 Jay Greco
+/* Copyright 2018 Nicolas Schodet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,9 +13,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Custom config starts after VIA's EEPROM usage,
-// dynamic keymaps start after this.
-// Custom config Usage:
-// 1 for enabled encoder modes (1 byte)
-// 6 for 3x custom encoder settings, left, right, and press (18 bytes)
-#define VIA_EEPROM_CUSTOM_CONFIG_SIZE 19
+
+#pragma once
+
+#include "quantum.h"
+
+#ifdef KEYBOARD_splitty_rev1
+#    include "rev1.h"
+#endif
