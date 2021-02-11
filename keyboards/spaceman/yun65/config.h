@@ -1,4 +1,4 @@
-/* Copyright 2018-2020 James Young (@noroadsleft)
+/* Copyright 2020 Spaceman
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,21 +13,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #pragma once
+#include "config_common.h"
 
-#define PERMISSIVE_HOLD // https://docs.qmk.fm/#/feature_advanced_keycodes?id=permissive-hold
+/* USB Device descriptor parameter */
+#define VENDOR_ID       0x5342 // "SB"
+#define PRODUCT_ID      0x594E // "YN"
+#define DEVICE_VER      0x0001
+#define MANUFACTURER    Spaceman
+#define PRODUCT         Yun 65
 
-// Enable single-color backlighting
-#define BACKLIGHT_BREATHING
-#define BACKLIGHT_LEVELS 5
-#define BREATHING_PERIOD 4
+/* Key Matrix perameter */
+#define MATRIX_ROWS 5
+#define MATRIX_COLS 16
+#define DIODE_DIRECTION COL2ROW
 
-#ifdef LOCKING_SUPPORT_ENABLE
-#   undef LOCKING_SUPPORT_ENABLE
-#endif
-#ifdef LOCKING_RESYNC_ENABLE
-#   undef LOCKING_RESYNC_ENABLE
-#endif
+#define MATRIX_ROW_PINS { E6, D3, D2, D1, D0 }
+#define MATRIX_COL_PINS { F0, F1, F4, F5, F6, F7, D4, D6, D7, B4, B5, B6, C6, C7, D5, B3 }
 
-#define NO_ACTION_ONESHOT
+#define UNUSED_PINS
