@@ -1,4 +1,4 @@
-/* Copyright 2021 Craig Gardner 
+/* Copyright 2021 Chase Nordengren 
   * 
   * This program is free software: you can redistribute it and/or modify 
   * it under the terms of the GNU General Public License as published by 
@@ -13,23 +13,30 @@
   * You should have received a copy of the GNU General Public License 
   * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
   */ 
-  
+
 #include QMK_KEYBOARD_H
 
-#define _MAIN 0
 
-void encoder_update_user(uint8_t index, bool clockwise) {
-  if (index == 0) { 
-    if (clockwise) {
-      tap_code(KC_VOLU);
-    } else {
-      tap_code(KC_VOLD);
-    }
-  } 
-}
-
-const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = { //button closest to USB is first
-  [_MAIN] = LAYOUT(
-     KC_MUTE, KC_MEDIA_PREV_TRACK, KC_MEDIA_PLAY_PAUSE, KC_MEDIA_STOP, KC_MNXT
-  )
+enum custom_keycodes {
+    QMKPASS = SAFE_RANGE,
 };
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+    case QMKPASS:
+        if (record->event.pressed) {
+            // when keycode QMKPASS is pressed
+            SEND_STRING("Sample string");
+        } else {
+            // when keycode QMKPASS is released
+        }
+        break;
+    }
+    return true;
+};
+
+
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+	[0] = LAYOUT(KC_ESC, SGUI(KC_R), SGUI(KC_S), QMKPASS, SGUI(KC_A), SGUI(KC_V))
+};
+
