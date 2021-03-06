@@ -78,6 +78,7 @@ qk_tap_dance_action_t tap_dance_actions[] = {
 #define MG_QUE  S(KC_MINS)
 #define MG_BTCK S(KC_EQL)
 #define MG_STAR S(KC_NUHS)
+#define MG_CIRC S(KC_RBRC)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -95,8 +96,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_QWERTY] = LAYOUT_planck_grid(
     MG_ESC,  KC_Q,    KC_W,    KC_E,   KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    SE_ARNG,
     KC_BSPC, KC_A,    KC_S,    KC_D,   KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    SE_ODIA, SE_ADIA,
-    KC_LSFT, KC_Z,    KC_X,    KC_C,   KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_ENT ,
-    KC_LCTL, KC_LGUI, KC_LALT, NETHER,  LOWER, KC_SPC,  KC_SPC,  RAISE,   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT
+    KC_LSFT, KC_Z,    KC_X,    KC_C,   KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_UP  , KC_ENT ,
+    KC_LCTL, KC_LGUI, KC_LALT, NETHER,  LOWER, KC_SPC,  KC_SPC,  RAISE,    KC_SLSH, KC_LEFT, KC_DOWN, KC_RGHT
 ),
 
 /* Nether
@@ -123,7 +124,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | Del  |      |      |      |      |      |      |      |      |  '   |   /  |  =   |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Shift|  <   |      |      |      |      |      |      |      |      |      |      |
+ * | Shift|  <   |      |      |      |      |      |      |      |      |  ^   |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | Tab  |      |      |      |      |             |      | Home | PgDn | PgUp | End  |
  * `-----------------------------------------------------------------------------------'
@@ -131,7 +132,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_LOWER] = LAYOUT_planck_grid(
     MG_EXCL, MG_QUOT, MG_HASH, MG_CURR, MG_PERC, MG_AMP,  MG_SLSH, MG_LPAR, MG_RPAR,  MG_EQL,  MG_QUE,  MG_BTCK,
     KC_BSPC, _______, _______, _______, _______, _______, _______, _______, _______,  KC_NUHS, MG_SLSH, MG_EQL,
-    _______, KC_NUBS, _______, _______, _______, _______, _______, _______, _______,  _______, _______, _______,
+    _______, KC_NUBS, _______, _______, _______, _______, _______, _______, _______,  _______, MG_CIRC, _______,
     KC_TAB , _______, _______, _______, _______, _______, _______, _______, KC_HOME,  KC_PGDN, KC_PGUP, KC_END
 ),
 
@@ -148,7 +149,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 [_RAISE] = LAYOUT_planck_grid(
     MG_UDEX, MG_AT,   MG_PND,  MG_DLR,  MG_EUR,  MG_YEN,  MG_RGW,  MG_RBR,  MG_LBR,  MG_LGW,  MG_BKSL, MG_PLMN,
-    KC_DEL,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   _______, _______, MG_STAR, _______, _______,
+    KC_DEL,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   _______, _______, MG_STAR, MG_BKSL, _______,
     _______, MG_PIPE, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  _______, _______, _______, _______,
     KC_TAB , _______, _______, _______, _______, _______, _______, _______, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY
 ),
