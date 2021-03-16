@@ -1,6 +1,4 @@
-/* Copyright
- *   2017 Josh Black (@consolenaut)
- *   2021 QMK
+/* Copyright 2020 Thys de Wet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,22 +13,4 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#pragma once
-
-#include "quantum.h"
-
-#define ___ KC_NO
-
-#define LAYOUT( \
-      k00, k01, k02, \
-      k10, k11, k12, \
-      k20, k21, k22, \
-                k32  \
-) \
-{ \
-    { k00, k01, k02 }, \
-    { k10, k11, k12 }, \
-    { k20, k21, k22 }, \
-    { ___, ___, k32 } \
-}
+#include "grandiceps.h"
