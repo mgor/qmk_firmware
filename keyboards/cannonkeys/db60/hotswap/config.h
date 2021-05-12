@@ -1,5 +1,5 @@
 /*
-Copyright 2017 Jack Humbert <jack.humb@gmail.com>
+Copyright 2021 Andrew Kannan
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,12 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef REV2_CONFIG_H
-#define REV2_CONFIG_H
+#pragma once
 
-#include "config_common.h"
-
-#define DEVICE_VER      0x0002
-#define PRODUCT_ID      0x67F3
-
-#endif
+#define PRODUCT_ID      0xDB62
+#define PRODUCT DB60 Hotswap
