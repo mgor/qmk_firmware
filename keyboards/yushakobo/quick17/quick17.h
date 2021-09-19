@@ -1,4 +1,4 @@
-/* Copyright 2021 John Ezra
+/* Copyright 2021 yushakobo
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,25 +16,23 @@
 
 #pragma once
 
-#ifdef OLED_DRIVER_ENABLE
-  #define OLED_DISPLAY_128X64
-#endif
+#include "quantum.h"
 
-#ifdef RGBLIGHT_ENABLE
-  #define RGBLIGHT_EFFECT_RAINBOW_MOOD
-  #define RGBLIGHT_EFFECT_RAINBOW_SWIRL
-  #define RGBLIGHT_EFFECT_STATIC_GRADIENT
-  #define RGBLIGHT_EFFECT_TWINKLE
-
-  #define RGBLIGHT_HUE_STEP 8
-  #define RGBLIGHT_SAT_STEP 8
-  #define RGBLIGHT_VAL_STEP 8
-  #define RGBLIGHT_LIMIT_VAL 150
-#endif
-
-#undef DEBOUNCE
-#define DEBOUNCE 1
-
-#define TAPPING_TERM 125
-
-#define SPLIT_WPM_ENABLE
+/* This is a shortcut to help you visually see your layout.
+ *
+ * The first section contains all of the arguments representing the physical
+ * layout of the board and position of the keys.
+ *
+ * The second converts the arguments into a two-dimensional array which
+ * represents the switch matrix.
+ */
+#define LAYOUT( \
+    k00, k01, k02, k03, k04, k05, \
+    k10, k11, k12, k13, k14, k15, \
+    k20, k21, k22, k23, k24, k25 \
+) \
+{ \
+    { k00, k01, k02, k03, k04, k05 }, \
+    { k10, k11, k12, k13, k14, k15 }, \
+    { k20, k21, k22, k23, k24, k25 } \
+}

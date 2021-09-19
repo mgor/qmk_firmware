@@ -1,4 +1,5 @@
-/* Copyright 2021 John Ezra
+  
+/* Copyright 2021 Omar Afzal
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,27 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "gentleman65.h"
 
-#ifdef OLED_DRIVER_ENABLE
-  #define OLED_DISPLAY_128X64
-#endif
-
-#ifdef RGBLIGHT_ENABLE
-  #define RGBLIGHT_EFFECT_RAINBOW_MOOD
-  #define RGBLIGHT_EFFECT_RAINBOW_SWIRL
-  #define RGBLIGHT_EFFECT_STATIC_GRADIENT
-  #define RGBLIGHT_EFFECT_TWINKLE
-
-  #define RGBLIGHT_HUE_STEP 8
-  #define RGBLIGHT_SAT_STEP 8
-  #define RGBLIGHT_VAL_STEP 8
-  #define RGBLIGHT_LIMIT_VAL 150
-#endif
-
-#undef DEBOUNCE
-#define DEBOUNCE 1
-
-#define TAPPING_TERM 125
-
-#define SPLIT_WPM_ENABLE
+bool encoder_update_kb(uint8_t index, bool clockwise) {
+    if (!encoder_update_user(index, clockwise)) { return false; }
+    if (index == 0) { /* First encoder */
+        if (clockwise) {
+            tap_code_delay(KC_AUDIO_VOL_UP, 10);
+        } else {
+            tap_code_delay(KC_AUDIO_VOL_DOWN, 10);
+        }
+    }
+    return true;
+}
