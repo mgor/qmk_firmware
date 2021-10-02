@@ -156,7 +156,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 bool led_update_user(led_t led_state) {
-    rgblight_set_layer_state(_BASE, led_state.caps_lock);
+    rgblight_set_layer_state(0, led_state.caps_lock);
     return true;
 }
 #endif
