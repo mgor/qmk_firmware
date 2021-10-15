@@ -16,18 +16,37 @@
 
 #include QMK_KEYBOARD_H
 
+#ifdef CONSOLE_ENABLE
+#include "print.h"
+#endif
+
 
 enum keyboard_layers {
     _BASE = 0,
-    _FUNC = 1,
-    _CAPS = 2,
+    _CAPS = 1,
+    _FUNC = 2,
+};
+
+enum mg_keycodes {
+    MG_RESET = SAFE_RANGE,
+    MG_EEPS,
+    MG_VAI,
+    MG_VAD,
+    MG_HUI,
+    MG_HUD,
+    MG_SAI,
+    MG_SAD,
+    MG_SPI,
+    MG_SPD,
 };
 
 #define MG_CAPS LT(_CAPS, KC_CAPS)
 #define MG_FUNC MO(_FUNC)
 static uint16_t idle_timer = 0;
+static uint16_t delay_timer = 0;
 static uint8_t halfmin_counter = 0;
 static bool rgb_matrix_idle = false;
+static bool dip_switch_active;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -40,23 +59,33 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_LCTL,  KC_LGUI,  KC_LALT,                                KC_SPC,                                 KC_RALT,  MG_FUNC,  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 
 [_FUNC] = LAYOUT_iso_83(
-     KC_TRNS,            KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_DEL,   KC_TRNS,
-     KC_TRNS,  KC_A,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,              KC_TRNS,
-     RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  EEP_RST,  KC_TRNS,  RESET,                      KC_TRNS,
-     KC_TRNS,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,            KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_DEL,   RGB_TOG,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  MG_VAI,   MG_HUI,   MG_SAI,   MG_SPI,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  MG_RESET,                     KC_TRNS,
+     KC_TRNS,  KC_TRNS,  MG_VAD,   MG_HUD,   MG_SAD,   MG_SPD,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  MG_EEPS,            KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS),
 
 [_CAPS] = LAYOUT_iso_83(
-     KC_ESC,             KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_DEL,   KC_INS,
-     KC_GRV,   KC_B,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,  KC_EQL,   KC_BSPC,            KC_PGUP,
-     KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,  KC_RBRC,                      KC_PGDN,
-     KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,  KC_NUHS,  KC_ENT,             KC_HOME,
-     KC_LSFT,  KC_NUBS,  KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,            KC_RSFT,  KC_UP,
-     KC_LCTL,  KC_LGUI,  KC_LALT,                                KC_SPC,                                 KC_RALT,  KC_TRNS,  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT)
+     KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_HOME,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_CALC,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,
+     KC_TRNS,  KC_TRNS,  KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS)
+
 };
 
+void keyboard_post_init_user(void) {
+#ifdef CONSOLE_ENABLE
+    debug_enable=true;
+#endif
+}
+
 bool dip_switch_update_user(uint8_t index, bool active) {
+    if (index == 0) {
+        dip_switch_active = active;
+    }
     return false;
 }
 
@@ -91,5 +120,108 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         halfmin_counter = 0;
     }
 
+    if (record->event.pressed) {
+        switch (keycode) {
+            case MG_RESET:
+                if (dip_switch_active) {
+                    reset_keyboard();
+                }
+                break;
+            case MG_EEPS:
+                if (dip_switch_active) {
+                    eeconfig_update_rgb_matrix();
+                }
+            case MG_VAI:
+                dip_switch_active ? rgb_matrix_increase_val() : rgb_matrix_increase_val_noeeprom();
+                break;
+            case MG_VAD:
+                dip_switch_active ? rgb_matrix_decrease_val() : rgb_matrix_decrease_val_noeeprom();
+                break;
+            case MG_HUI:
+                dip_switch_active ? rgb_matrix_increase_hue() : rgb_matrix_increase_hue_noeeprom();
+                break;
+            case MG_HUD:
+                dip_switch_active ? rgb_matrix_decrease_hue() : rgb_matrix_decrease_hue_noeeprom();
+                break;
+            case MG_SAI:
+                dip_switch_active ? rgb_matrix_increase_sat() : rgb_matrix_increase_sat_noeeprom();
+                break;
+            case MG_SAD:
+                dip_switch_active ? rgb_matrix_decrease_sat() : rgb_matrix_decrease_sat_noeeprom();
+                break;
+            case MG_SPI:
+                dip_switch_active ? rgb_matrix_increase_speed() : rgb_matrix_increase_speed_noeeprom();
+                break;
+            case MG_SPD:
+                dip_switch_active ? rgb_matrix_decrease_speed() : rgb_matrix_decrease_speed_noeeprom();
+                break;
+        }
+    }
+
     return true;
+}
+
+#ifdef ENCODER_ENABLE
+bool encoder_update_user(uint8_t index, bool clockwise) {
+    if (index != 0) {
+        return true;
+    }
+
+    if (layer_state_is(_FUNC)) {
+        delay_timer = timer_read();
+        if (dip_switch_active) {
+            clockwise ? rgb_matrix_step() : rgb_matrix_step_reverse();
+        } else {
+            clockwise ? rgb_matrix_step_noeeprom() : rgb_matrix_step_reverse_noeeprom();
+        }
+    } else if (layer_state_is(_CAPS)) {
+        clockwise ? tap_code(KC_PGUP) : tap_code(KC_PGDN);
+    } else { // _BASE
+        clockwise ? tap_code(KC_VOLU) : tap_code(KC_VOLD);
+    }
+
+    return false;
+}
+#endif
+
+void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    if (layer_state_is(_BASE) && host_keyboard_led_state().caps_lock) {
+        for (uint8_t i = led_min; i <= led_max; i++) {
+            if (g_led_config.flags[i] & LED_FLAG_KEYLIGHT) {
+                rgb_matrix_set_color(i, RGB_ORANGE);
+            }
+        }
+    } else {
+        HSV hsv = {0, 0, 0};
+
+        if (layer_state_is(_FUNC)) {
+            if (dip_switch_active) {
+                hsv.v = 0;
+            } else {
+                hsv.h = 85;
+            }
+
+            // rgb_matrix_mode has been changed, want to see a preview of it
+            if (delay_timer > 0 && timer_elapsed(delay_timer) < 3000) {
+                return;
+            }
+
+            delay_timer = 0;
+        } else if (layer_state_is(_CAPS)) {
+            hsv.h = 128;
+        } else {
+            return;
+        }
+
+        hsv.s = 255;
+        hsv.v = rgb_matrix_get_val();
+
+        RGB rgb = hsv_to_rgb(hsv);
+
+        for (uint8_t i = led_min; i <= led_max; i++) {
+            if (g_led_config.flags[i] & LED_FLAG_KEYLIGHT) {
+                rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+            }
+        }
+    }
 }
