@@ -84,8 +84,13 @@ void keyboard_post_init_user(void) {
 
 bool dip_switch_update_user(uint8_t index, bool active) {
     if (index == 0) {
+        // if caps lock is enabled in "admin" mode, tap it turn caps off
+        if (host_keyboard_led_state().caps_lock && dip_switch_active && !active) {
+            tap_code(KC_CAPS);
+        }
         dip_switch_active = active;
     }
+
     return false;
 }
 
@@ -112,12 +117,29 @@ void matrix_scan_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
-        if (rgb_matrix_idle == true) {
+        if (rgb_matrix_idle) {
             rgb_matrix_enable_noeeprom();
             rgb_matrix_idle = false;
         }
         idle_timer = timer_read();
         halfmin_counter = 0;
+    }
+
+    // keycodes that should be handled both up and down
+    switch (keycode & 0xFF) { // KC_ value in the first 8 bytes, if wrapped with MO, LT etc.
+        case KC_CAPS:
+            if (!dip_switch_active) {
+                return false;
+            }
+            break;
+    }
+
+    // keycodes that should be handled only down
+    if (record->event.pressed) {
+        // changing rgb settings, delay RGB indicators so we can se the changes
+        if (keycode >= MG_VAI && keycode <= MG_SPD) {
+            delay_timer = timer_read();
+        }
 
         switch (keycode) {
             case MG_RESET:
@@ -157,7 +179,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 dip_switch_active ? rgb_matrix_decrease_speed() : rgb_matrix_decrease_speed_noeeprom();
                 return false;
             default:
-                return true;
+                break;
         }
     }
 
