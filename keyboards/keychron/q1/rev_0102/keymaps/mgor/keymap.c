@@ -126,7 +126,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     // keycodes that should be handled both up and down
-    switch (keycode & 0xFF) { // KC_ value in the first 8 bytes, if wrapped with MO, LT etc.
+    switch (keycode & 0xFF) { // KC_ value in the first 8 bits, if wrapped with MO, LT etc.
         case KC_CAPS:
             if (!dip_switch_active) {
                 return false;
