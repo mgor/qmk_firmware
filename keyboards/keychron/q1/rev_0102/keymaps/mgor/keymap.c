@@ -38,6 +38,7 @@ enum mg_keycodes {
     MG_SAD,
     MG_SPI,
     MG_SPD,
+    WASD,
 };
 
 #define LT_CAPS LT(_CAPS, KC_CAPS)
@@ -47,6 +48,8 @@ static uint16_t delay_timer = 0;
 static uint8_t halfmin_counter = 0;
 static bool rgb_matrix_idle = false;
 static bool dip_switch_active;
+static bool wasd_active = false;
+static uint16_t wasd_timer = 0;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -69,7 +72,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_CAPS] = LAYOUT_iso_83(
      KC_TRNS,            KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_HOME,
      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
-     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,
+     KC_TRNS,  KC_TRNS,  WASD,     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_CALC,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,                                KC_TRNS,                                KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS)
@@ -112,6 +115,27 @@ void matrix_scan_user(void) {
         rgb_matrix_disable_noeeprom();
         rgb_matrix_idle = true;
         halfmin_counter = 0;
+    }
+
+    if (wasd_active && timer_elapsed(wasd_timer) > rand() % 30000) {
+        uint8_t key = rand() % 4;
+
+        switch (key) {
+            case 0:
+                tap_code(KC_W);
+                break;
+            case 1:
+                tap_code(KC_S);
+                break;
+            case 2:
+                tap_code(KC_A);
+                break;
+            case 3:
+                tap_code(KC_D);
+                break;
+        }
+
+        wasd_timer = timer_read();
     }
 }
 
@@ -177,6 +201,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             case MG_SPD:
                 dip_switch_active ? rgb_matrix_decrease_speed() : rgb_matrix_decrease_speed_noeeprom();
+                return false;
+            case WASD:
+                wasd_active = !wasd_active;
+                if (!wasd_active) {
+                    wasd_timer = 0;
+                } else {
+                    wasd_timer = timer_read();
+                }
                 return false;
             default:
                 break;
