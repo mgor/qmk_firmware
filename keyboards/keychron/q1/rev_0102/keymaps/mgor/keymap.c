@@ -117,7 +117,7 @@ void matrix_scan_user(void) {
         halfmin_counter = 0;
     }
 
-    if (wasd_active && timer_elapsed(wasd_timer) > rand() % 30000) {
+    if (wasd_active && timer_elapsed(wasd_timer) > (rand() % 30001) + 15000) {
         uint8_t key = rand() % 4;
 
         switch (key) {
