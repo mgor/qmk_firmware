@@ -1,12 +1,9 @@
 #pragma once
 
-#include <rgblight_list.h>
-
-#undef HSV_ORANGE
-#define HSV_ORANGE 13, 255, 255
+#define MG_ORANGE 13, 255, 255
 
 #ifdef RGBLIGHT_ENABLE
-#define MG_BASE_COLOR HSV_ORANGE
+#define MG_BASE_COLOR MG_ORANGE
 #else
 #define MG_BASE_COLOR HSV_YELLOW
 #endif
