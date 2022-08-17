@@ -1,5 +1,7 @@
 OPT_DEFS += -DNO_SUSPEND_POWER_DOWN
+EXTRAFLAGS += -flto
 
 ENCODER_ENABLE = yes
 BOOTMAGIC_ENABLE = yes      # Virtual DIP switch configuration
 CONSOLE_ENABLE = no
+MOUSEKEY_ENABLE = yes

@@ -39,6 +39,7 @@ enum mg_keycodes {
     MG_SPI,
     MG_SPD,
     WASD,
+    AUTOCLK,
 };
 
 #define LT_CAPS LT(_CAPS, KC_CAPS)
@@ -50,6 +51,9 @@ static bool rgb_matrix_idle = false;
 static bool dip_switch_active;
 static bool wasd_active = false;
 static uint16_t wasd_timer = 0;
+static bool autoclk_active = false;
+static uint16_t autoclk_timer = 0;
+static uint16_t autoclk_speed = 500;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -63,7 +67,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [_FUNC] = LAYOUT_iso_83(
      WASD,               KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_DEL,   RGB_TOG,
-     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     AUTOCLK,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
      KC_TRNS,  KC_TRNS,  MG_VAI,   MG_HUI,   MG_SAI,   MG_SPI,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  MG_RESET,                     KC_TRNS,
      KC_TRNS,  KC_TRNS,  MG_VAD,   MG_HUD,   MG_SAD,   MG_SPD,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  MG_EEPS,            KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,
@@ -136,6 +140,12 @@ void matrix_scan_user(void) {
         }
 
         wasd_timer = timer_read();
+    }
+
+    if (autoclk_active && timer_elapsed(autoclk_timer) > autoclk_speed) {
+        tap_code(KC_BTN1);
+
+        autoclk_timer = timer_read();
     }
 }
 
@@ -210,6 +220,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     wasd_timer = timer_read();
                 }
                 return false;
+            case AUTOCLK:
+                autoclk_active = !autoclk_active;
+                if (!autoclk_active) {
+                    autoclk_timer = 0;
+                } else {
+                    autoclk_timer = timer_read();
+                }
+                return false;
             default:
                 break;
         }
@@ -225,11 +243,27 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     }
 
     if (layer_state_is(_FUNC)) {
-        delay_timer = timer_read();
-        if (dip_switch_active) {
-            clockwise ? rgb_matrix_step() : rgb_matrix_step_reverse();
+        if (autoclk_active) {
+            uint16_t autoclk_speed_step = 500;
+            if (clockwise) {
+                if (autoclk_speed <= autoclk_speed_step) {
+                    autoclk_speed_step = 0;
+                }
+                autoclk_speed *= -1;
+            } else {
+                if (autoclk_speed >= 65000) {
+                    autoclk_speed_step = 0;
+                }
+            }
+
+            autoclk_speed += autoclk_speed_step;
         } else {
-            clockwise ? rgb_matrix_step_noeeprom() : rgb_matrix_step_reverse_noeeprom();
+            delay_timer = timer_read();
+            if (dip_switch_active) {
+                clockwise ? rgb_matrix_step() : rgb_matrix_step_reverse();
+            } else {
+                clockwise ? rgb_matrix_step_noeeprom() : rgb_matrix_step_reverse_noeeprom();
+            }
         }
     } else if (layer_state_is(_CAPS)) {
         clockwise ? tap_code(KC_PGUP) : tap_code(KC_PGDN);
@@ -243,8 +277,18 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 
 void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     RGB color = { .r = -1, .g = -1, .b = -1};
-    if (wasd_active) {
-        color.r = color.g = color.b = 0xFF;
+    if (wasd_active && autoclk_active) { // RGB_GOLDENROD
+        color.r = 0xD9;
+        color.g = 0xA5;
+        color.b = 0x21;
+    } else if (wasd_active) { // RGB_CHARTREUSE
+        color.r = 0x80;
+        color.g = 0xFF;
+        color.b = 0x00;
+    } else if (autoclk_active) { // RGB_MAGENTA
+        color.r = 0xFF;
+        color.g = 0x00;
+        color.b = 0xFF;
     } else if (layer_state_is(_BASE) && host_keyboard_led_state().caps_lock) {
         color.r = 0xFF;
         color.g = 0x80;
