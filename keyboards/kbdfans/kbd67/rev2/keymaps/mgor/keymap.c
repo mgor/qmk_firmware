@@ -19,8 +19,17 @@ enum keyboard_layers {
     _CAPS = 2,
 };
 
+enum mg_keycodes {
+    AUTOCLK = SAFE_RANGE,
+    WASD,
+};
+
 #define MG_CAPS LT(_CAPS, KC_CAPS)
 #define MG_FUNC MO(_FUNC)
+static bool wasd_active = false;
+static uint16_t wasd_timer = 0;
+static bool autoclk_active = false;
+static uint16_t autoclk_timer = 0;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -59,8 +68,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * └────┴────┴────┴─────────────────────┴────┴────┴────┴───┴───┴────┘
      */
     [_FUNC] = LAYOUT_65_iso(
-        _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_DEL , _______,
-        _______, _______, KC_UP  , _______, _______, _______, _______, _______, _______, _______, EEP_RST, _______, RESET  ,          _______,
+        WASD   , KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_DEL , _______,
+        AUTOCLK, _______, KC_UP  , _______, _______, _______, _______, _______, _______, _______, EEP_RST, _______, RESET  ,          _______,
         _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______,                   _______,                            _______, _______, _______, _______, _______, _______
@@ -88,4 +97,58 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 };
 
+void matrix_scan_user(void) {
+    if (wasd_active && timer_elapsed(wasd_timer) > (rand() % 30001) + 15000) {
+        uint8_t key = rand() % 4;
 
+        switch (key) {
+            case 0:
+                tap_code(KC_W);
+                break;
+            case 1:
+                tap_code(KC_S);
+                break;
+            case 2:
+                tap_code(KC_A);
+                break;
+            case 3:
+                tap_code(KC_D);
+                break;
+        }
+
+        wasd_timer = timer_read();
+    }
+
+    if (autoclk_active && timer_elapsed(autoclk_timer) > 500) {
+        tap_code(KC_BTN1);
+
+        autoclk_timer = timer_read();
+    }
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (record->event.pressed) {
+        switch (keycode) {
+            case WASD:
+                wasd_active = !wasd_active;
+                if (!wasd_active) {
+                    wasd_timer = 0;
+                } else {
+                    wasd_timer = timer_read();
+                }
+                return false;
+            case AUTOCLK:
+                autoclk_active = !autoclk_active;
+                if (!autoclk_active) {
+                    autoclk_timer = 0;
+                } else {
+                    autoclk_timer = timer_read();
+                }
+                return false;
+            default:
+                break;
+        }
+    }
+
+    return true;
+}
