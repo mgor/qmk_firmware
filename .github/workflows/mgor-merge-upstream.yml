@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: mgor
           fetch-depth: 0
@@ -26,6 +26,9 @@ jobs:
         run: |
           git fetch upstream
           git merge --no-edit upstream/master | awk '/Already up to date/ {exit 1}' || exit 0
+      - name: Update submodules
+        run: |
+          make git-submodule
       - name: Push upstream changes
         run: |
           git push
