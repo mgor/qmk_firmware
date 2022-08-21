@@ -20,6 +20,8 @@
 #include "print.h"
 #endif
 
+#define CLICK_PERIOD_MS 60
+
 
 enum keyboard_layers {
     _BASE = 0,
@@ -51,9 +53,8 @@ static bool rgb_matrix_idle = false;
 static bool dip_switch_active;
 static bool wasd_active = false;
 static uint16_t wasd_timer = 0;
-static bool autoclk_active = false;
-static uint16_t autoclk_timer = 0;
-static uint16_t autoclk_speed = 500;
+static deferred_token click_token = INVALID_DEFERRED_TOKEN;
+static bool click_registered = false;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -87,6 +88,18 @@ void keyboard_post_init_user(void) {
 #ifdef CONSOLE_ENABLE
     debug_enable=true;
 #endif
+}
+
+static uint32_t auto_click_callback(uint32_t trigger_time, void* cb_arg) {
+    if (click_registered) {
+        unregister_code(KC_MS_BTN1);
+        click_registered = false;
+    } else {
+        click_registered = true;
+        register_code(KC_MS_BTN1);
+    }
+
+    return CLICK_PERIOD_MS / 2;
 }
 
 bool dip_switch_update_user(uint8_t index, bool active) {
@@ -140,12 +153,6 @@ void matrix_scan_user(void) {
         }
 
         wasd_timer = timer_read();
-    }
-
-    if (autoclk_active && timer_elapsed(autoclk_timer) > autoclk_speed) {
-        tap_code(KC_BTN1);
-
-        autoclk_timer = timer_read();
     }
 }
 
@@ -221,11 +228,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
                 return false;
             case AUTOCLK:
-                autoclk_active = !autoclk_active;
-                if (!autoclk_active) {
-                    autoclk_timer = 0;
+                if (click_token != INVALID_DEFERRED_TOKEN) {
+                    cancel_deferred_exec(click_token);
+                    click_token = INVALID_DEFERRED_TOKEN;
+                    if (click_registered) {
+                        unregister_code(KC_MS_BTN1);
+                        click_registered = false;
+                    }
                 } else {
-                    autoclk_timer = timer_read();
+                    uint32_t next_delay_ms = auto_click_callback(next_delay_ms, NULL);
+                    click_token = defer_exec(next_delay_ms, auto_click_callback, NULL);
                 }
                 return false;
             default:
@@ -243,27 +255,11 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     }
 
     if (layer_state_is(_FUNC)) {
-        if (autoclk_active) {
-            uint16_t autoclk_speed_step = 500;
-            if (clockwise) {
-                if (autoclk_speed <= autoclk_speed_step) {
-                    autoclk_speed_step = 0;
-                }
-                autoclk_speed *= -1;
-            } else {
-                if (autoclk_speed >= 65000) {
-                    autoclk_speed_step = 0;
-                }
-            }
-
-            autoclk_speed += autoclk_speed_step;
+        delay_timer = timer_read();
+        if (dip_switch_active) {
+            clockwise ? rgb_matrix_step() : rgb_matrix_step_reverse();
         } else {
-            delay_timer = timer_read();
-            if (dip_switch_active) {
-                clockwise ? rgb_matrix_step() : rgb_matrix_step_reverse();
-            } else {
-                clockwise ? rgb_matrix_step_noeeprom() : rgb_matrix_step_reverse_noeeprom();
-            }
+            clockwise ? rgb_matrix_step_noeeprom() : rgb_matrix_step_reverse_noeeprom();
         }
     } else if (layer_state_is(_CAPS)) {
         clockwise ? tap_code(KC_PGUP) : tap_code(KC_PGDN);
@@ -277,7 +273,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 
 void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     RGB color = { .r = -1, .g = -1, .b = -1};
-    if (wasd_active && autoclk_active) { // RGB_GOLDENROD
+    if (wasd_active && click_token != INVALID_DEFERRED_TOKEN) { // RGB_GOLDENROD
         color.r = 0xD9;
         color.g = 0xA5;
         color.b = 0x21;
@@ -285,7 +281,7 @@ void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         color.r = 0x80;
         color.g = 0xFF;
         color.b = 0x00;
-    } else if (autoclk_active) { // RGB_MAGENTA
+    } else if (click_token != INVALID_DEFERRED_TOKEN) { // RGB_MAGENTA
         color.r = 0xFF;
         color.g = 0x00;
         color.b = 0xFF;

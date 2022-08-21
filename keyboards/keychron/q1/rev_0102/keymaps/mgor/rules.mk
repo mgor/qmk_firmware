@@ -5,3 +5,4 @@ ENCODER_ENABLE = yes
 BOOTMAGIC_ENABLE = yes      # Virtual DIP switch configuration
 CONSOLE_ENABLE = no
 MOUSEKEY_ENABLE = yes
+DEFERRED_EXEC_ENABLE = yes
