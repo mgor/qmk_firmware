@@ -42,10 +42,20 @@ enum mg_keycodes {
     MG_SPD,
     WASD,
     AUTOCLK,
+    MG_RGB_N,
+    MG_RGB_P,
 };
 
 #define LT_CAPS LT(_CAPS, KC_CAPS)
 #define MO_FUNC MO(_FUNC)
+#ifndef ENCODER_ENABLE
+#define RGB_P KC_TRNS
+#define RGB_N KC_TRNS
+#else
+#define RGB_P MG_RGB_P
+#define RGB_N MG_RGB_N
+#endif
+
 static uint16_t idle_timer = 0;
 static uint16_t delay_timer = 0;
 static uint8_t halfmin_counter = 0;
@@ -67,8 +77,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_LCTL,  KC_LGUI,  KC_LALT,                                KC_SPC,                                 KC_RALT,  MO_FUNC,  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 
 [_FUNC] = LAYOUT_iso_83(
-     WASD,               KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_DEL,   RGB_TOG,
-     AUTOCLK,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,
+     WASD,               KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_MPRV,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  RGB_P,    RGB_N,    RGB_TOG,
+     AUTOCLK,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_DEL,             KC_TRNS,
      KC_TRNS,  KC_TRNS,  MG_VAI,   MG_HUI,   MG_SAI,   MG_SPI,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  MG_RESET,                     KC_TRNS,
      KC_TRNS,  KC_TRNS,  MG_VAD,   MG_HUD,   MG_SAD,   MG_SPD,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  MG_EEPS,            KC_TRNS,
      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,            KC_TRNS,  KC_TRNS,
@@ -88,6 +98,46 @@ void keyboard_post_init_user(void) {
 #ifdef CONSOLE_ENABLE
     debug_enable=true;
 #endif
+}
+
+static void mg_rgb(bool reverse) {
+    if (!reverse) {
+        dip_switch_active ? rgb_matrix_step() : rgb_matrix_step_noeeprom();
+    } else {
+        dip_switch_active ? rgb_matrix_step_reverse() : rgb_matrix_step_reverse_noeeprom();
+    }
+}
+
+static void mg_vai(void) {
+    dip_switch_active ? rgb_matrix_increase_val() : rgb_matrix_increase_val_noeeprom();
+}
+
+static void mg_vad(void) {
+    dip_switch_active ? rgb_matrix_decrease_val() : rgb_matrix_decrease_val_noeeprom();
+}
+
+static void mg_hui(void) {
+    dip_switch_active ? rgb_matrix_increase_hue() : rgb_matrix_increase_hue_noeeprom();
+}
+
+static void mg_hud(void) {
+    dip_switch_active ? rgb_matrix_decrease_hue() : rgb_matrix_decrease_hue_noeeprom();
+}
+
+static void mg_sai(void) {
+    dip_switch_active ? rgb_matrix_increase_sat() : rgb_matrix_increase_sat_noeeprom();
+}
+
+static void mg_sad(void) {
+    dip_switch_active ? rgb_matrix_decrease_sat() : rgb_matrix_decrease_sat_noeeprom();
+}
+
+static void mg_spi(void) {
+    dip_switch_active ? rgb_matrix_increase_speed() : rgb_matrix_increase_speed_noeeprom();
+}
+
+static void mg_spd(void) {
+    dip_switch_active ? rgb_matrix_decrease_speed() : rgb_matrix_decrease_speed_noeeprom();
 }
 
 static uint32_t auto_click_callback(uint32_t trigger_time, void* cb_arg) {
@@ -196,28 +246,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
                 break;
             case MG_VAI:
-                dip_switch_active ? rgb_matrix_increase_val() : rgb_matrix_increase_val_noeeprom();
+                mg_vai();
                 return false;
             case MG_VAD:
-                dip_switch_active ? rgb_matrix_decrease_val() : rgb_matrix_decrease_val_noeeprom();
+                mg_vad();
                 return false;
             case MG_HUI:
-                dip_switch_active ? rgb_matrix_increase_hue() : rgb_matrix_increase_hue_noeeprom();
+                mg_hui();
                 return false;
             case MG_HUD:
-                dip_switch_active ? rgb_matrix_decrease_hue() : rgb_matrix_decrease_hue_noeeprom();
+                mg_hud();
                 return false;
             case MG_SAI:
-                dip_switch_active ? rgb_matrix_increase_sat() : rgb_matrix_increase_sat_noeeprom();
+                mg_sai();
                 return false;
             case MG_SAD:
-                dip_switch_active ? rgb_matrix_decrease_sat() : rgb_matrix_decrease_sat_noeeprom();
+                mg_sad();
                 return false;
             case MG_SPI:
-                dip_switch_active ? rgb_matrix_increase_speed() : rgb_matrix_increase_speed_noeeprom();
+                mg_spi();
                 return false;
             case MG_SPD:
-                dip_switch_active ? rgb_matrix_decrease_speed() : rgb_matrix_decrease_speed_noeeprom();
+                mg_spd();
                 return false;
             case WASD:
                 wasd_active = !wasd_active;
@@ -240,6 +290,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     click_token = defer_exec(next_delay_ms, auto_click_callback, NULL);
                 }
                 return false;
+            case MG_RGB_N:
+                mg_rgb(false);
+                return false;
+            case MG_RGB_P:
+                mg_rgb(true);
+                return false;
             default:
                 break;
         }
@@ -256,11 +312,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 
     if (layer_state_is(_FUNC)) {
         delay_timer = timer_read();
-        if (dip_switch_active) {
-            clockwise ? rgb_matrix_step() : rgb_matrix_step_reverse();
-        } else {
-            clockwise ? rgb_matrix_step_noeeprom() : rgb_matrix_step_reverse_noeeprom();
-        }
+        mg_rgb(clockwise);
     } else if (layer_state_is(_CAPS)) {
         clockwise ? tap_code(KC_PGUP) : tap_code(KC_PGDN);
     } else { // _BASE
@@ -271,7 +323,7 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
 }
 #endif
 
-void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     RGB color = { .r = -1, .g = -1, .b = -1};
     if (wasd_active && click_token != INVALID_DEFERRED_TOKEN) { // RGB_GOLDENROD
         color.r = 0xD9;
@@ -301,14 +353,14 @@ void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
             // rgb_matrix_mode has been changed, want to see a preview of it
             if (delay_timer > 0 && timer_elapsed(delay_timer) < 3000) {
-                return;
+                return false;
             }
 
             delay_timer = 0;
         } else if (layer_state_is(_CAPS)) {
             hsv.h = 128;
         } else {
-            return;
+            return false;
         }
 
         hsv.s = 255;
@@ -325,4 +377,6 @@ void rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             }
         }
     }
+
+    return false;
 }
