@@ -1,1 +1,0 @@
-../mgor/config.h

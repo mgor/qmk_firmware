@@ -77,7 +77,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      KC_LCTL,  KC_LGUI,  KC_LALT,                                KC_SPC,                                 KC_RALT,  MO_FUNC,  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
 
 [_FUNC] = LAYOUT_iso_83(
-     WASD,               KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_MPRV,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  RGB_P,    RGB_N,    RGB_TOG,
+     WASD,               KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_MPRV,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  MG_RGB_P, MG_RGB_N, RGB_TOG,
      AUTOCLK,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_DEL,             KC_TRNS,
      KC_TRNS,  KC_TRNS,  MG_VAI,   MG_HUI,   MG_SAI,   MG_SPI,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  MG_RESET,                     KC_TRNS,
      KC_TRNS,  KC_TRNS,  MG_VAD,   MG_HUD,   MG_SAD,   MG_SPD,   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  MG_EEPS,            KC_TRNS,
@@ -101,6 +101,7 @@ void keyboard_post_init_user(void) {
 }
 
 static void mg_rgb(bool reverse) {
+    delay_timer = timer_read();
     if (!reverse) {
         dip_switch_active ? rgb_matrix_step() : rgb_matrix_step_noeeprom();
     } else {
@@ -311,7 +312,6 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     }
 
     if (layer_state_is(_FUNC)) {
-        delay_timer = timer_read();
         mg_rgb(clockwise);
     } else if (layer_state_is(_CAPS)) {
         clockwise ? tap_code(KC_PGUP) : tap_code(KC_PGDN);
@@ -372,9 +372,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
     if (color.r > -1 && color.g > -1 && color.b > -1) {
         for (uint8_t i = led_min; i <= led_max; i++) {
-            if (g_led_config.flags[i] & LED_FLAG_KEYLIGHT) {
-                rgb_matrix_set_color(i, color.r, color.g, color.b);
-            }
+            rgb_matrix_set_color(i, color.r, color.g, color.b);
         }
     }
 
