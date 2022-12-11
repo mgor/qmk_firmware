@@ -337,7 +337,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         color.r = 0xFF;
         color.g = 0x00;
         color.b = 0xFF;
-    } else if (layer_state_is(_BASE) && host_keyboard_led_state().caps_lock) {
+    } else if (layer_state_is(_BASE) && host_keyboard_led_state().caps_lock && dip_switch_active) {
         color.r = 0xFF;
         color.g = 0x80;
         color.b = 0x00;
