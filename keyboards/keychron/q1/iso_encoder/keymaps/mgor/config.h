@@ -1,5 +1,7 @@
-#define ENCODERS_PAD_A { E6 }
-#define ENCODERS_PAD_B { B7 }
+#ifndef ENCODERS_PAD_A
+    #define ENCODERS_PAD_A { E6 }
+    #define ENCODERS_PAD_B { B7 }
+#endif
 
 #ifdef CONSOLE_ENABLE
     #undef RGBLIGHT_ANIMATIONS
