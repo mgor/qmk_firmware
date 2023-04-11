@@ -69,11 +69,7 @@
 #ifdef RGBLIGHT_ENABLE
     #define RGB_DI_PIN A6
     #define RGBLED_NUM 16
-  #ifndef MG_RGBLIGHT_EFFECT
     #define RGBLIGHT_ANIMATIONS
-  #else
-    #undef RGBLIGHT_ANIMATIONS
-  #endif
     #define RGBLIGHT_LAYERS
     #define RGBLIGHT_LAYERS_OVERRIDE_RGB_OFF
 #endif
