@@ -3,18 +3,14 @@
 
 #pragma once
 
-/*
- * Feature disable options
- *  These options are also useful to firmware size reduction.
- */
-
-/* disable debug print */
-//#define NO_DEBUG
-
-/* disable print */
-//#define NO_PRINT
-
-/* disable action features */
-//#define NO_ACTION_LAYER
-//#define NO_ACTION_TAPPING
-//#define NO_ACTION_ONESHOT
+#ifdef RGB_MATRIX_ENABLE
+#define RGB_MATRIX_LED_COUNT 64
+#define DRIVER_COUNT 1
+#define DRIVER_ADDR_1 0b1010000
+#define RGB_MATRIX_FRAMEBUFFER_EFFECTS
+#define RGB_MATRIX_KEYPRESSES
+//#define ENABLE_RGB_MATRIX_TYPING_HEATMAP
+#define RGB_DISABLE_WHEN_USB_SUSPENDED
+#define RGB_MATRIX_STARTUP_MODE RGB_MATRIX_TYPING_HEATMAP
+#define RGB_MATRIX_DISABLE_AFTER_TIMEOUT 3
+#endif
