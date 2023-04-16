@@ -2,6 +2,10 @@
 
 #include "quantum.h"
 
+#ifdef CONSOLE_ENABLE
+#include "print.h"
+#endif
+
 #ifdef RGB_MATRIX_ENABLE
 #include <ch.h>
 #include <hal.h>

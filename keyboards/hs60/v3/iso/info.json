@@ -7,11 +7,13 @@
     "features": {
         "bootmagic": true,
         "command": false,
-        "console": false,
+        "console": true,
         "extrakey": true,
         "mousekey": true,
         "nkro": true,
-        "audio": false
+        "audio": false,
+        "rgb_matrix": true,
+        "rgblight": false
     },
     "matrix_pins": {
         "cols": ["A13", "A10", "A9", "A14", "A15", "B8", "B9", "C13", "C14", "C15", "A0", "A1", "A2", "A3"],

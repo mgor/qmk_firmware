@@ -1,4 +1,4 @@
-#include "v3.h"
+#include "iso.h"
 
 #ifdef RGB_MATRIX_ENABLE
 const is31_led PROGMEM g_is31_leds[RGB_MATRIX_LED_COUNT] = {
@@ -76,16 +76,16 @@ const is31_led PROGMEM g_is31_leds[RGB_MATRIX_LED_COUNT] = {
 
 led_config_t g_led_config = { {
     // Key Matrix to LED index
-    // LA1,  LA5,  LA9,  LA13, LA17, LA21, LA25, LA29, LA33, LA37, LA41, LA45, LA49, LA53,
+    // LA1,  LA5,   LA9, LA13, LA17, LA21, LA25, LA29, LA33, LA37, LA41, LA45, LA49, LA53,
     // LA2,  LA6,  LA10, LA14, LA18, LA22, LA26, LA30, LA34, LA38, LA42, LA46, LA50,  ---,
     // LA3,  LA7,  LA11, LA15, LA19, LA23, LA27, LA31, LA35, LA39, LA43, LA47, LA54, LA55,
-    // LA4,  ---,   LA8, LA12, LA16, LA20, LA24, LA28, LA32, LA36, LA40, LA44,  ---, LA52,
+    // LA4,  LA48,  LA8, LA12, LA16, LA20, LA24, LA28, LA32, LA36, LA40, LA44,  ---, LA52,
     // LA57, LA58, LA59,  ---,  ---,  ---, LA60,  ---,  ---,  ---, LA62, LA63, LA64, LA56
-    {    1-1,    5-1,    9-1,   13-1,     17-1,   21-1,   25-1,   29-1,   33-1,   37-1,   41-1,   45-1,   49-1,   53-1 },
-    {    2-1,    6-1,   10-1,   14-1,     18-1,   22-1,   26-1,   30-1,   34-1,   38-1,   42-1,   46-1,   50-1, NO_LED },
-    {    3-1,    7-1,   11-1,   15-1,     19-1,   23-1,   27-1,   31-1,   35-1,   39-1,   43-1,   47-1,   54-1,   55-1 },
-    {    4-1, NO_LED,    8-1,   12-1,     16-1,   20-1,   24-1,   28-1,   32-1,   36-1,   40-1,   44-1, NO_LED,   52-1 },
-    {   57-1,   58-1,   59-1, NO_LED,   NO_LED, NO_LED,   60-1, NO_LED, NO_LED, NO_LED,   62-1,   63-1,   64-1,   56-1 }
+    {   0,   4,  8,     12,     16,     20,  24,     28,     32,     36,  40,  44,     48,     52 },
+    {   1,   5,  9,     13,     17,     21,  25,     29,     33,     37,  41,  45,     49, NO_LED },
+    {   2,   6, 10,     14,     18,     22,  26,     30,     34,     38,  42,  46,     53,     54 },
+    {   3,  47,  7,     11,     15,     19,  23,     27,     31,     35,  39,  43, NO_LED,     51 },
+    {  56,  57, 58, NO_LED, NO_LED, NO_LED,  59, NO_LED, NO_LED, NO_LED,  61,  62,     63,     55 }
 }, {
     // LED Index to Physical position
     // LA1..LA50
@@ -100,18 +100,63 @@ led_config_t g_led_config = { {
     {162, 64} , {182, 64}, {202, 64}
 }, {
     // LED Index to Flag
-    1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, \
-    1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,    \
-    8, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, \
-    1,    4, 4, 4, 4, 4, 4, 4, 4, 4, 4,    1, \
-    1, 1, 1,          1,             1, 1, 1
+    // LA1-LA4
+    LED_FLAG_MODIFIER, LED_FLAG_MODIFIER, LED_FLAG_INDICATOR, LED_FLAG_MODIFIER, \
+    // LA5-LA8
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT,  LED_FLAG_KEYLIGHT, \
+    // LA9-LA12
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT,  LED_FLAG_KEYLIGHT, \
+    // LA13-LA16
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT,  LED_FLAG_KEYLIGHT, \
+    // LA17-LA20
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT,  LED_FLAG_KEYLIGHT, \
+    // LA21-LA24
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT,  LED_FLAG_KEYLIGHT, \
+    // LA25-LA28
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT,  LED_FLAG_KEYLIGHT, \
+    // LA29-LA32
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT,  LED_FLAG_KEYLIGHT, \
+    // LA33-LA36
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT,  LED_FLAG_KEYLIGHT, \
+    // LA37-LA40
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT,  LED_FLAG_KEYLIGHT, \
+    // LA41-LA44
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT,  LED_FLAG_KEYLIGHT, \
+    // LA45-LA48
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT,  LED_FLAG_KEYLIGHT, \
+    // LA49-LA52
+    LED_FLAG_KEYLIGHT, LED_FLAG_KEYLIGHT, LED_FLAG_NONE,      LED_FLAG_MODIFIER, \
+    // LA53-LA56
+    LED_FLAG_MODIFIER, LED_FLAG_KEYLIGHT, LED_FLAG_MODIFIER,  LED_FLAG_MODIFIER, \
+    // LA57-LA64
+    LED_FLAG_MODIFIER, LED_FLAG_MODIFIER, LED_FLAG_MODIFIER,  LED_FLAG_MODIFIER, LED_FLAG_NONE, LED_FLAG_MODIFIER, LED_FLAG_MODIFIER, LED_FLAG_MODIFIER
 } };
 #endif
 
 void keyboard_post_init_kb(void) {
+    #ifdef CONSOLE_ENABLE
+    debug_enable=true;
+    // debug_matrix=true;
+    // debug_keyboard=true;
+    #endif
+
     #ifdef RGB_MATRIX_ENABLED
-    rgb_matrix_enable_noeeprom();
-    rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_COLOR);
+    // disable non existing LED's, keyboards/wilba_tech/wt_rgb_backlight.c#L3186-L3203
+    IS31FL3733_set_led_control_register(51-1, false, false, false);
+    IS31FL3733_set_led_control_register(61-1, false, false, false);
+    IS31FL3733_update_led_control_registers(DRIVER_ADDR_1, 0);
+    #endif
+
+    keyboard_post_init_user();
+}
+
+void matrix_init_kb(void) {
+    #ifdef RGB_MATRIX_ENABLED
+    eeconfig_update_rgb_matrix();
+    rgb_matrix_enable();
+    rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
     rgb_matrix_set_color_all(HSV_CYAN);
     #endif
+
+    matrix_init_user();
 }
