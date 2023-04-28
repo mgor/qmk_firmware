@@ -88,16 +88,22 @@ led_config_t g_led_config = { {
     {  56,  57, 58, NO_LED, NO_LED, NO_LED,  59, NO_LED, NO_LED, NO_LED,  61,  62,     63,     55 }
 }, {
     // LED Index to Physical position
-    // LA1..LA50
-    {0, 0}    , {4, 16}  , {6, 32} ,  {2, 48}  , {16, 0}  , {24, 16} , {28, 32}, {36, 48} , {32, 0}  , {40, 16} , {44, 32} , {52, 48} , {48, 0}  , \
-    {56, 16}  , {60, 32} , {68, 48},  {64, 0}  , {72, 16} , {76, 32} , {84, 48}, {80, 0}  , {88, 16} , {92, 32} , {100, 48}, {96, 0}  , {104, 16}, \
-    {108, 32} , {116, 48}, {112, 0},  {120, 16}, {124, 32}, {132, 48}, {128, 0}, {136, 16}, {140, 32}, {148, 48}, {144, 0} , {152, 16},            \
-    {156, 32} , {164, 48}, {160, 0},  {168, 16}, {172, 32}, {180, 48}, {176, 0}, {184, 16}, {188, 32}, {20, 48} , {192, 0} , {200, 16},            \
+    // LA1..LA13
+    {0, 0}    , {0, 16}  , {0, 32} ,  {0, 48}  , {17, 0}  , {17, 16} , {17, 32}, {34, 48} , {34, 0}  , {34, 16} , {34, 32} , {52, 48} , {52, 0}  , \
+    // LA14..LA26
+    {52, 16}  , {52, 32} , {69, 48} , {69, 0}  , {69, 16} , {69, 32} , {86, 48}, {86, 0}  , {86, 16} , {86, 32} , {103, 48}, {103, 0} , {103, 16}, \
+    // LA27..LA38
+    {103, 32} , {103, 48}, {121, 0},  {121, 16}, {121, 32}, {138, 48}, {138, 0}, {138, 16}, {138, 32}, {155, 48}, {155, 0} , {155, 16},            \
+    // LAA39..LA50
+    {155, 32} , {172, 48}, {172, 0},  {172, 16}, {172, 32}, {190, 48}, {190, 0}, {190, 16}, {190, 32}, {17, 48} , {207, 0} , {207, 16},            \
+    // LA51 -- not used
     {255, 255},                                                                                                                                    \
     // LA52..LA60
-    {210, 48} , {216, 0} , {220, 16}, {222, 24}, {222, 64}, {2, 64}  , {22, 64}, {42, 64} , {102, 64},                                             \
+    {224, 48} , {224, 0} , {207, 32}, {224, 32}, {224, 64}, {0, 64}  , {17, 64}, {24, 64} , {103, 64},                                             \
+    // LA61 -- not used
     {255, 255},                                                                                                                                    \
-    {162, 64} , {182, 64}, {202, 64}
+    // LA62..LA64
+    {172, 64} , {190, 64}, {207, 64}
 }, {
     // LED Index to Flag
     // LA1-LA4
@@ -133,30 +139,106 @@ led_config_t g_led_config = { {
 } };
 #endif
 
-void keyboard_post_init_kb(void) {
-    #ifdef CONSOLE_ENABLE
-    debug_enable=true;
-    // debug_matrix=true;
-    // debug_keyboard=true;
-    #endif
+#if defined(RGB_MATRIX_ENABLE) || defined(RGBLIGHT_ENABLE)
+static uint16_t idle_timer = 0;
+static bool rgb_idle = false;
+static uint8_t halfmin_counter = 0;
+#endif
 
-    #ifdef RGB_MATRIX_ENABLED
+void keyboard_post_init_kb(void) {
+    #ifdef RGB_MATRIX_ENABLE
     // disable non existing LED's, keyboards/wilba_tech/wt_rgb_backlight.c#L3186-L3203
     IS31FL3733_set_led_control_register(51-1, false, false, false);
     IS31FL3733_set_led_control_register(61-1, false, false, false);
     IS31FL3733_update_led_control_registers(DRIVER_ADDR_1, 0);
+
+    rgb_matrix_enable();
+    rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
+    rgb_matrix_sethsv(HSV_CYAN);
+    #endif
+
+    #ifdef RGBLIGHT_ENABLE
+    rgblight_enable();
+    rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
+    rgblight_sethsv(HSV_CYAN);
     #endif
 
     keyboard_post_init_user();
 }
 
 void matrix_init_kb(void) {
-    #ifdef RGB_MATRIX_ENABLED
-    eeconfig_update_rgb_matrix();
-    rgb_matrix_enable();
-    rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
-    rgb_matrix_set_color_all(HSV_CYAN);
+    #ifdef CONSOLE_ENABLE
+    debug_enable=true;
+    debug_matrix=true;
+    debug_keyboard=true;
+    uint8_t sleep_timer = timer_read();
+
+    while (timer_elapsed(sleep_timer) < 2000); // sleep for 2 seconds...
     #endif
 
     matrix_init_user();
+}
+
+void matrix_scan_kb(void) {
+    #if defined(RGB_MATRIX_ENABLE) || defined(RGBLIGHT_ENABLE)
+    if (idle_timer == 0) {
+        idle_timer = timer_read();
+    }
+
+    if (!rgb_idle && timer_elapsed(idle_timer) > 30000) {
+        halfmin_counter++;
+        idle_timer = timer_read();
+    } else if (!rgb_idle && RGB_DISABLE_AFTER_IDLE > 0 && halfmin_counter >= RGB_DISABLE_AFTER_IDLE * 2) {
+        #ifdef RGB_MATRIX_ENABLE
+        rgb_matrix_disable_noeeprom();
+        #endif
+        #ifdef RGBLIGHT_ENABLE
+        rgblight_disable_noeeprom();
+        #endif
+        rgb_idle = true;
+        halfmin_counter = 0;
+    }
+    #endif
+}
+
+bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
+    #if defined(RGB_MATRIX_ENABLE) || defined(RGBLIGHT_ENABLE)
+    if (record->event.pressed) {
+        if (rgb_idle) {
+            #ifdef RGB_MATRIX_ENABLE
+            rgb_matrix_enable_noeeprom();
+            #endif
+            #ifdef RGBLIGHT_ENABLE
+            rgblight_enable_noeeprom();
+            #endif
+            rgb_idle = false;
+        }
+        idle_timer = timer_read();
+        halfmin_counter = 0;
+    }
+    #endif
+
+    return process_record_user(keycode, record);
+}
+
+bool rgb_matrix_indicators_kb(void) {
+    if (!rgb_matrix_indicators_user()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool rgb_matrix_indicators_advanced_kb(uint8_t led_min, uint8_t led_max) {
+    #ifdef RGB_MATRIX_ENABLE
+    if (host_keyboard_led_state().caps_lock) {
+        for (uint8_t i = led_min; i < led_max; i++) {
+            if (g_led_config.flags[i] & LED_FLAG_KEYLIGHT) {
+                rgb_matrix_set_color(i, RGB_RED);
+            }
+        }
+    }
+    #endif
+
+    return rgb_matrix_indicators_advanced_user(led_min, led_max);
 }
