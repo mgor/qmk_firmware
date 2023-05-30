@@ -34,6 +34,7 @@
     "[json]": {
         "editor.formatOnSave": false
     },
+    "C_Cpp.workspaceParsingPriority": "medium",
     "clangd.arguments": [
         "--header-insertion=never"
     ]
